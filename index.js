@@ -58,7 +58,7 @@ app.get("/", (req, res, next) => {
 });
 
 // error function
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     // Handle the error and send an error response
     console.error(err.stack);
     res.status(500).send("Internal Server Error");
