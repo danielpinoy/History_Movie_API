@@ -4,10 +4,369 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>API</title>
+	<title>API Endpoints</title>
 </head>
 <body>
-	<p>build a a web service that provides access to a curated collection of historical movies and documentaries. 
-		It allows developers to search, retrieve, and access information about historical films, including details such as movie titles, release years, directors, actors, and brief synopses.</p>
+	<h1>List of API Endpoints</h1>
+	<ul>
+    <li>
+        <h3>Endpoint 1: Get All Movies</h3>
+        <p>
+            <strong>Description:</strong> Returns a list of all historic movies.
+        </p>
+        <p>
+            <strong>Endpoint URL:</strong> <code>/historic-movies</code>
+        </p>
+        <p>
+            <strong>Method Type:</strong> GET
+        </p>
+        <p>
+            <strong>Query Parameters:</strong> None
+        </p>
+        <p>
+            <strong>Request Body:</strong> N/A
+        </p>
+        <p>
+            <strong>Response Data:</strong> JSON array representing a list of movies.
+            <br>
+            Example:
+            <pre>
+[
+    {
+        "title": "Babylon",
+        "director": "Damien Chazelle",
+        "criticRating": 9.0,
+        "userRating": 8.5,
+        "genres": ["Drama", "Musical"]
+    },
+    // ... other movies ...
+]
+            </pre>
+        </p>
+    </li>
+
+    <li>
+        <h3>Endpoint 2: Get Movie by Title</h3>
+        <p>
+            <strong>Description:</strong> Returns a single movie based on its title.
+        </p>
+        <p>
+            <strong>Endpoint URL:</strong> <code>/historic-movies/:title</code>
+        </p>
+        <p>
+            <strong>Method Type:</strong> GET
+        </p>
+        <p>
+            <strong>Query Parameters:</strong> None
+        </p>
+        <p>
+            <strong>Request Body:</strong> N/A
+        </p>
+        <p>
+            <strong>Response Data:</strong> JSON object representing the movie.
+            <br>
+            Example:
+            <pre>
+{
+    "title": "Babylon",
+    "director": "Damien Chazelle",
+    "criticRating": 9.0,
+    "userRating": 8.5,
+    "genres": ["Drama", "Musical"]
+}
+            </pre>
+        </p>
+    </li>
+
+		<li>
+			<h3>Endpoint 3: Get Movies by Genre</h3>
+			<p>
+					<strong>Description:</strong> Returns a list of movies based on a specified genre.
+			</p>
+			<p>
+					<strong>Endpoint URL:</strong> <code>/historic-movies/genre/:genres</code>
+			</p>
+			<p>
+					<strong>Method Type:</strong> GET
+			</p>
+			<p>
+					<strong>Query Parameters:</strong> None
+			</p>
+			<p>
+					<strong>Request Body:</strong> N/A
+			</p>
+			<p>
+					<strong>Response Data:</strong> JSON array representing a list of movies.
+					<br>
+					Example:
+					<pre>
+[
+	{
+			"title": "Babylon",
+			"director": "Damien Chazelle",
+			"criticRating": 9.0,
+			"userRating": 8.5,
+			"genres": ["Drama", "Musical"]
+	},
+	// ... other movies ...
+]
+					</pre>
+			</p>
+	</li>
+
+	<li>
+			<h3>Endpoint 4: Get Director by Name</h3>
+			<p>
+					<strong>Description:</strong> Returns information about a movie director based on their name.
+			</p>
+			<p>
+					<strong>Endpoint URL:</strong> <code>/historic-movies/director/:name</code>
+			</p>
+			<p>
+					<strong>Method Type:</strong> GET
+			</p>
+			<p>
+					<strong>Query Parameters:</strong> None
+			</p>
+			<p>
+					<strong>Request Body:</strong> N/A
+			</p>
+			<p>
+					<strong>Response Data:</strong> JSON object representing the director's information.
+					<br>
+					Example:
+					<pre>
+{
+	"name": "Damien Chazelle",
+	"bio": "Damien Chazelle is an American director known for...",
+	"birthYear": 1985
+}
+					</pre>
+			</p>
+	</li>
+	<li>
+    <h3>Endpoint 5: Get All Users</h3>
+    <p>
+        <strong>Description:</strong> Retrieves a list of all registered users.
+    </p>
+    <p>
+        <strong>Endpoint URL:</strong> <code>/users</code>
+    </p>
+    <p>
+        <strong>Method Type:</strong> GET
+    </p>
+    <p>
+        <strong>Query Parameters:</strong> None
+    </p>
+    <p>
+        <strong>Request Body:</strong> N/A
+    </p>
+    <p>
+        <strong>Response Data:</strong> JSON array containing user objects, each with an <code>id</code>, <code>username</code>, and <code>password</code>.
+        <br>
+        Example:
+        <pre>
+[
+    {
+        "id": 1,
+        "username": "user1",
+        "password": "password123"
+    },
+    {
+        "id": 2,
+        "username": "user2",
+        "password": "password456"
+    },
+    
+]
+        </pre>
+    </p>
+</li>
+	
+	<li>
+		<h3>Endpoint 6: Add Movie to User's Favorites</h3>
+		<p>
+				<strong>Description:</strong> Allows a user to add a movie to their list of favorite movies.
+		</p>
+		<p>
+				<strong>Endpoint URL:</strong> <code>/users/:id/:movieTitle</code>
+		</p>
+		<p>
+				<strong>Method Type:</strong> POST
+		</p>
+		<p>
+				<strong>Query Parameters:</strong> None
+		</p>
+		<p>
+				<strong>Request Body:</strong> N/A
+		</p>
+		<p>
+				<strong>Response Data:</strong> Text confirmation that the movie has been added.
+				<br>
+				Example:
+				<pre>
+"Gladiator has been added to user 1's favorites"
+				</pre>
+		</p>
+</li>
+
+<li>
+		<h3>Endpoint 7: Remove Movie from User's Favorites</h3>
+		<p>
+				<strong>Description:</strong> Allows a user to remove a movie from their list of favorite movies.
+		</p>
+		<p>
+				<strong>Endpoint URL:</strong> <code>/users/:id/:movieTitle</code>
+		</p>
+		<p>
+				<strong>Method Type:</strong> DELETE
+		</p>
+		<p>
+				<strong>Query Parameters:</strong> None
+		</p>
+		<p>
+				<strong>Request Body:</strong> N/A
+		</p>
+		<p>
+				<strong>Response Data:</strong> Text confirmation that the movie has been removed.
+				<br>
+				Example:
+				<pre>
+"Gladiator has been removed from user 1's favorites"
+				</pre>
+		</p>
+</li>
+
+<li>
+		<h3>Endpoint 8: Delete User</h3>
+		<p>
+				<strong>Description:</strong> Deletes a user's account and associated data.
+		</p>
+		<p>
+				<strong>Endpoint URL:</strong> <code>/users/:id/</code>
+		</p>
+		<p>
+				<strong>Method Type:</strong> DELETE
+		</p>
+		<p>
+				<strong>Query Parameters:</strong> None
+		</p>
+		<p>
+				<strong>Request Body:</strong> N/A
+		</p>
+		<p>
+				<strong>Response Data:</strong> Text confirmation of the user's deletion.
+				<br>
+				Example:
+				<pre>
+"User 1 has been removed"
+				</pre>
+		</p>
+</li>
+
+<li>
+	<h3>Endpoint 9: Get Documentation</h3>
+	<p>
+			<strong>Description:</strong> Retrieves the API documentation HTML page.
+	</p>
+	<p>
+			<strong>Endpoint URL:</strong> <code>/documentation</code>
+	</p>
+	<p>
+			<strong>Method Type:</strong> GET
+	</p>
+	<p>
+			<strong>Query Parameters:</strong> None
+	</p>
+	<p>
+			<strong>Request Body:</strong> N/A
+	</p>
+	<p>
+			<strong>Response Data:</strong> HTML content of the API documentation page.
+	</p>
+</li>
+
+<li>
+	<h3>Endpoint 10: Add New User</h3>
+	<p>
+			<strong>Description:</strong> Registers a new user.
+	</p>
+	<p>
+			<strong>Endpoint URL:</strong> <code>/register</code>
+	</p>
+	<p>
+			<strong>Method Type:</strong> POST
+	</p>
+	<p>
+			<strong>Query Parameters:</strong> None
+	</p>
+	<p>
+			<strong>Request Body:</strong> JSON object with the following fields:
+			<ul>
+					<li><code>username</code>: The username of the new user (string).</li>
+					<li><code>password</code>: The password of the new user (string).</li>
+			</ul>
+			Example:
+			<pre>
+{
+	"username": "new_user",
+	"password": "password123"
+}
+			</pre>
+	</p>
+	<p>
+			<strong>Response Data:</strong> JSON object with a success message.
+			<br>
+			Example:
+			<pre>
+{
+	"message": "User registered successfully"
+}
+			</pre>
+	</p>
+</li>
+<li>
+	<h3>Endpoint 11: Update User Username</h3>
+	<p>
+			<strong>Description:</strong> Updates a user's username.
+	</p>
+	<p>
+			<strong>Endpoint URL:</strong> <code>/users/:id</code>
+	</p>
+	<p>
+			<strong>Method Type:</strong> PUT
+	</p>
+	<p>
+			<strong>Request Parameters:</strong>
+			<ul>
+					<li><code>:id</code> (string) - The unique identifier of the user to update.</li>
+			</ul>
+	</p>
+	<p>
+			<strong>Request Body:</strong>
+			<pre>
+{
+	"newUsername": "new_username_here"
+}
+			</pre>
+	</p>
+	<p>
+			<strong>Response Data:</strong> JSON object containing a message and the updated user object.
+			<br>
+			Example:
+			<pre>
+{
+	"message": "Username updated successfully",
+	"userUpdate": {
+			"id": "user_id_here",
+			"username": "new_username_here",
+			"password": "user_password_here"
+	}
+}
+			</pre>
+	</p>
+</li>
+
+</ul>
 </body>
 </html>
