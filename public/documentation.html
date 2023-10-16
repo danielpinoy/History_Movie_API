@@ -8,365 +8,244 @@
 </head>
 <body>
 	<h1>List of API Endpoints</h1>
+	<h1>List of API Endpoints</h1>
 	<ul>
-    <li>
-        <h3>Endpoint 1: Get All Movies</h3>
-        <p>
-            <strong>Description:</strong> Returns a list of all historic movies.
-        </p>
-        <p>
-            <strong>Endpoint URL:</strong> <code>/historic-movies</code>
-        </p>
-        <p>
-            <strong>Method Type:</strong> GET
-        </p>
-        <p>
-            <strong>Query Parameters:</strong> None
-        </p>
-        <p>
-            <strong>Request Body:</strong> N/A
-        </p>
-        <p>
-            <strong>Response Data:</strong> JSON array representing a list of movies.
-            <br>
-            Example:
-            <pre>
-[
-    {
-        "title": "Babylon",
-        "director": "Damien Chazelle",
-        "criticRating": 9.0,
-        "userRating": 8.5,
-        "genres": ["Drama", "Musical"]
-    },
-    // ... other movies ...
-]
-            </pre>
-        </p>
-    </li>
-
-    <li>
-        <h3>Endpoint 2: Get Movie by Title</h3>
-        <p>
-            <strong>Description:</strong> Returns a single movie based on its title.
-        </p>
-        <p>
-            <strong>Endpoint URL:</strong> <code>/historic-movies/:title</code>
-        </p>
-        <p>
-            <strong>Method Type:</strong> GET
-        </p>
-        <p>
-            <strong>Query Parameters:</strong> None
-        </p>
-        <p>
-            <strong>Request Body:</strong> N/A
-        </p>
-        <p>
-            <strong>Response Data:</strong> JSON object representing the movie.
-            <br>
-            Example:
-            <pre>
+			<li>
+					<h3>Endpoint 1: Get All Movies</h3>
+					<p><strong>Description:</strong> Returns a list of all historic movies.</p>
+					<p><strong>Endpoint URL:</strong> <code>/historic-movies</code></p>
+					<p><strong>Method Type:</strong> GET</p>
+					<p><strong>Query Parameters:</strong> None</p>
+					<p><strong>Request Body:</strong> N/A</p>
+					<p><strong>Response Data:</strong> JSON array representing a list of movies.</p>
+					<p><strong>Sample Request:</strong><br> To retrieve all historic movies, make a GET request to:
+							<code>http://your-api-url/historic-movies</code></p>
+					<p><strong>Response Status Codes:</strong><br>
+							- 200 (OK): Successful request, movies data is returned.<br>
+							- 404 (Not Found): No historic movies found.</p>
+			</li>
+			<li>
+					<h3>Endpoint 2: Register a User</h3>
+					<p><strong>Description:</strong> Register a new user.</p>
+					<p><strong>Endpoint URL:</strong> <code>/register</code></p>
+					<p><strong>Method Type:</strong> POST</p>
+					<p><strong>Request Body:</strong> JSON object with user data. Example:
+							<pre>
 {
-    "title": "Babylon",
-    "director": "Damien Chazelle",
-    "criticRating": 9.0,
-    "userRating": 8.5,
-    "genres": ["Drama", "Musical"]
+	"Username": "newuser",
+	"Password": "password123",
+	"Email": "newuser@example.com",
+	"Birthday": "1990-01-15",
+	"FavoriteMovies": []
 }
-            </pre>
-        </p>
-    </li>
+							</pre>
+					</p>
+					<p><strong>Response Data:</strong> JSON object representing the newly registered user. Example:
+							<pre>
+{
+	"_id": "603b1304f88c9d5dfe837b33",
+	"Username": "newuser",
+	"Email": "newuser@example.com",
+	"Birthday": "1990-01-15",
+	"FavoriteMovies": []
+}
+							</pre>
+					</p>
+					<p><strong>Response Status Codes:</strong><br>
+							- 201 (Created): User registration successful.<br>
+							- 400 (Bad Request): User with the same username already exists.<br>
+							- 500 (Internal Server Error): Registration failed.</p>
+			</li>
+			<li>
+				<h3>Endpoint 3: Update User Info</h3>
+				<p><strong>Description:</strong> Update user information.</p>
+				<p><strong>Endpoint URL:</strong> <code>/users/:Username</code></p>
+				<p><strong>Method Type:</strong> PUT</p>
+				<p><strong>Request Body:</strong> JSON object with user data to be updated. Example:
+						<pre>
+{
+"Username": "newusername",
+"Password": "newpassword",
+"Email": "newemail@example.com",
+"Birthday": "1995-02-20"
+}
+						</pre>
+				</p>
+				<p><strong>Response Data:</strong> JSON object representing the updated user. Example:
+						<pre>
+{
+"_id": "603b1304f88c9d5dfe837b33",
+"Username": "newusername",
+"Email": "newemail@example.com",
+"Birthday": "1995-02-20",
+"FavoriteMovies": []
+}
+						</pre>
+				</p>
+				<p><strong>Response Status Codes:</strong><br>
+						- 200 (OK): User information updated successfully.<br>
+						- 404 (Not Found): User not found.<br>
+						- 500 (Internal Server Error): Update failed.</p>
+		</li>
+		<li>
+				<h3>Endpoint 4: Add Favorite Movie to User</h3>
+				<p><strong>Description:</strong> Add a movie to a user's list of favorite movies.</p>
+				<p><strong>Endpoint URL:</strong> <code>/users/addfavorite/</code></p>
+				<p><strong>Method Type:</strong> POST</p>
+			
+				<p><strong>Request Body:</strong> 	
+					<pre>
+						{
+						"userId": "652ba985332f7cee65d16733",
+						"movieId": "652b9a3d332f7cee65d16731"
+				}
+			</pre>
+				<p><strong>Response Data:</strong> JSON object representing the updated user with the added movie. Example:
+						<pre>
+{
+"_id": "603b1304f88c9d5dfe837b33",
+"Username": "newusername",
+"Email": "newemail@example.com",
+"Birthday": "1995-02-20",
+"FavoriteMovies": ["603b1304f88c9d5dfe837b34"]
+}
+						</pre>
+				</p>
+				<p><strong>Response Status Codes:</strong><br>
+						- 200 (OK): Movie added to favorites successfully.<br>
+						- 404 (Not Found): User not found.<br>
+						- 500 (Internal Server Error): Adding movie to favorites failed.</p>
+		</li>
+		<li>
+				<h3>Endpoint 5: Remove Favorite Movie from User</h3>
+				<p><strong>Description:</strong> Remove a movie from a user's list of favorite movies.</p>
+				<p><strong>Endpoint URL:</strong> <code>/users/:id/:movieTitle</code></p>
+				<p><strong>Method Type:</strong> DELETE</p>
+				<p><strong>Request Body:</strong> N/A</p>
+				<p><strong>Response Data:</strong> JSON object indicating whether the movie was removed from favorites. Example:
+						<pre>
+{
+"message": "Movie removed from favorites."
+}
+						</pre>
+				</p>
+				<p><strong>Response Status Codes:</strong><br>
+						- 200 (OK): Movie removed from favorites successfully.<br>
+						- 404 (Not Found): User not found or movie not in favorites.<br>
+						- 500 (Internal Server Error): Removing movie from favorites failed.</p>
+		</li>
+		<li>
+				<h3>Endpoint 6: Delete User</h3>
+				<p><strong>Description:</strong> Delete a user account.</p>
+				<p><strong>Endpoint URL:</strong> <code>/users/:id</code></p>
+				<p><strong>Method Type:</strong> DELETE</p>
+				<p><strong>Request Body:</strong> N/A</p>
+				<p><strong>Response Data:</strong> JSON object indicating whether the user was deleted. Example:
+						<pre>
+{
+"message": "User deleted successfully"
+}
+						</pre>
+				</p>
+				<p><strong>Response Status Codes:</strong><br>
+						- 200 (OK): User deleted successfully.<br>
+						- 404 (Not Found): User not found.<br>
+						- 500 (Internal Server Error): User deletion failed.</p>
+		</li>
 
 		<li>
-			<h3>Endpoint 3: Get Movies by Genre</h3>
-			<p>
-					<strong>Description:</strong> Returns a list of movies based on a specified genre.
-			</p>
-			<p>
-					<strong>Endpoint URL:</strong> <code>/historic-movies/genre/:genres</code>
-			</p>
-			<p>
-					<strong>Method Type:</strong> GET
-			</p>
-			<p>
-					<strong>Query Parameters:</strong> None
-			</p>
-			<p>
-					<strong>Request Body:</strong> N/A
-			</p>
-			<p>
-					<strong>Response Data:</strong> JSON array representing a list of movies.
-					<br>
-					Example:
+			<h3>Endpoint 7: Get All Movies</h3>
+			<p><strong>Description:</strong> Get a list of all historic movies.</p>
+			<p><strong>Endpoint URL:</strong> <code>/historic-movies</code></p>
+			<p><strong>Method Type:</strong> GET</p>
+			<p><strong>Request Body:</strong> N/A</p>
+			<p><strong>Response Data:</strong> JSON array representing a list of movies. Example:
 					<pre>
 [
-	{
-			"title": "Babylon",
-			"director": "Damien Chazelle",
-			"criticRating": 9.0,
-			"userRating": 8.5,
-			"genres": ["Drama", "Musical"]
-	},
-	// ... other movies ...
+{
+	"title": "Babylon",
+	"director": "Damien Chazelle",
+	"criticRating": 9.0,
+	"userRating": 8.5,
+	"genres": ["Drama", "Musical"]
+},
+// ... other movies ...
 ]
 					</pre>
 			</p>
+			<p><strong>Response Status Codes:</strong><br>
+					- 200 (OK): Successful request, movies data is returned.<br>
+					- 404 (Not Found): No historic movies found.</p>
 	</li>
-
 	<li>
-			<h3>Endpoint 4: Get Director by Name</h3>
-			<p>
-					<strong>Description:</strong> Returns information about a movie director based on their name.
-			</p>
-			<p>
-					<strong>Endpoint URL:</strong> <code>/historic-movies/director/:name</code>
-			</p>
-			<p>
-					<strong>Method Type:</strong> GET
-			</p>
-			<p>
-					<strong>Query Parameters:</strong> None
-			</p>
-			<p>
-					<strong>Request Body:</strong> N/A
-			</p>
-			<p>
-					<strong>Response Data:</strong> JSON object representing the director's information.
-					<br>
-					Example:
+			<h3>Endpoint 8: Get Movie by Title</h3>
+			<p><strong>Description:</strong> Get a historic movie by its title.</p>
+			<p><strong>Endpoint URL:</strong> <code>/historic-movies/:Title</code></p>
+			<p><strong>Method Type:</strong> GET</p>
+			<p><strong>Request Body:</strong> N/A</p>
+			<p><strong>Response Data:</strong> JSON object representing the movie. Example:
 					<pre>
 {
-	"name": "Damien Chazelle",
-	"bio": "Damien Chazelle is an American director known for...",
-	"birthYear": 1985
+"title": "Babylon",
+"director": "Damien Chazelle",
+"criticRating": 9.0,
+"userRating": 8.5,
+"genres": ["Drama", "Musical"]
 }
 					</pre>
 			</p>
+			<p><strong>Response Status Codes:</strong><br>
+					- 200 (OK): Movie data is returned successfully.<br>
+					- 404 (Not Found): Movie with the given title not found.</p>
 	</li>
 	<li>
-    <h3>Endpoint 5: Get All Users</h3>
-    <p>
-        <strong>Description:</strong> Retrieves a list of all registered users.
-    </p>
-    <p>
-        <strong>Endpoint URL:</strong> <code>/users</code>
-    </p>
-    <p>
-        <strong>Method Type:</strong> GET
-    </p>
-    <p>
-        <strong>Query Parameters:</strong> None
-    </p>
-    <p>
-        <strong>Request Body:</strong> N/A
-    </p>
-    <p>
-        <strong>Response Data:</strong> JSON array containing user objects, each with an <code>id</code>, <code>username</code>, and <code>password</code>.
-        <br>
-        Example:
-        <pre>
+			<h3>Endpoint 9: Get Movies by Genre</h3>
+			<p><strong>Description:</strong> Get historic movies by genre.</p>
+			<p><strong>Endpoint URL:</strong> <code>/historic-movies/genres/:Genre</code></p>
+			<p><strong>Method Type:</strong> GET</p>
+			<p><strong>Request Body:</strong> N/A</p>
+			<p><strong>Response Data:</strong> JSON array representing a list of movies of the specified genre. Example:
+					<pre>
 [
-    {
-        "id": 1,
-        "username": "user1",
-        "password": "password123"
-    },
-    {
-        "id": 2,
-        "username": "user2",
-        "password": "password456"
-    },
-    
+{
+	"title": "Babylon",
+	"director": "Damien Chazelle",
+	"criticRating": 9.0,
+	"userRating": 8.5,
+	"genres": ["Drama", "Musical"]
+},
+// ... other movies of the specified genre ...
 ]
-        </pre>
-    </p>
-</li>
-	
+					</pre>
+			</p>
+			<p><strong>Response Status Codes:</strong><br>
+					- 200 (OK): Movies data is returned successfully.<br>
+					- 404 (Not Found): Movies with the given genre not found.</p>
+	</li>
 	<li>
-		<h3>Endpoint 6: Add Movie to User's Favorites</h3>
-		<p>
-				<strong>Description:</strong> Allows a user to add a movie to their list of favorite movies.
-		</p>
-		<p>
-				<strong>Endpoint URL:</strong> <code>/users/:id/:movieTitle</code>
-		</p>
-		<p>
-				<strong>Method Type:</strong> POST
-		</p>
-		<p>
-				<strong>Query Parameters:</strong> None
-		</p>
-		<p>
-				<strong>Request Body:</strong> N/A
-		</p>
-		<p>
-				<strong>Response Data:</strong> Text confirmation that the movie has been added.
-				<br>
-				Example:
-				<pre>
-"Gladiator has been added to user 1's favorites"
-				</pre>
-		</p>
-</li>
-
-<li>
-		<h3>Endpoint 7: Remove Movie from User's Favorites</h3>
-		<p>
-				<strong>Description:</strong> Allows a user to remove a movie from their list of favorite movies.
-		</p>
-		<p>
-				<strong>Endpoint URL:</strong> <code>/users/:id/:movieTitle</code>
-		</p>
-		<p>
-				<strong>Method Type:</strong> DELETE
-		</p>
-		<p>
-				<strong>Query Parameters:</strong> None
-		</p>
-		<p>
-				<strong>Request Body:</strong> N/A
-		</p>
-		<p>
-				<strong>Response Data:</strong> Text confirmation that the movie has been removed.
-				<br>
-				Example:
-				<pre>
-"Gladiator has been removed from user 1's favorites"
-				</pre>
-		</p>
-</li>
-
-<li>
-		<h3>Endpoint 8: Delete User</h3>
-		<p>
-				<strong>Description:</strong> Deletes a user's account and associated data.
-		</p>
-		<p>
-				<strong>Endpoint URL:</strong> <code>/users/:id/</code>
-		</p>
-		<p>
-				<strong>Method Type:</strong> DELETE
-		</p>
-		<p>
-				<strong>Query Parameters:</strong> None
-		</p>
-		<p>
-				<strong>Request Body:</strong> N/A
-		</p>
-		<p>
-				<strong>Response Data:</strong> Text confirmation of the user's deletion.
-				<br>
-				Example:
-				<pre>
-"User 1 has been removed"
-				</pre>
-		</p>
-</li>
-
-<li>
-	<h3>Endpoint 9: Get Documentation</h3>
-	<p>
-			<strong>Description:</strong> Retrieves the API documentation HTML page.
-	</p>
-	<p>
-			<strong>Endpoint URL:</strong> <code>/documentation</code>
-	</p>
-	<p>
-			<strong>Method Type:</strong> GET
-	</p>
-	<p>
-			<strong>Query Parameters:</strong> None
-	</p>
-	<p>
-			<strong>Request Body:</strong> N/A
-	</p>
-	<p>
-			<strong>Response Data:</strong> HTML content of the API documentation page.
-	</p>
-</li>
-
-<li>
-	<h3>Endpoint 10: Add New User</h3>
-	<p>
-			<strong>Description:</strong> Registers a new user.
-	</p>
-	<p>
-			<strong>Endpoint URL:</strong> <code>/register</code>
-	</p>
-	<p>
-			<strong>Method Type:</strong> POST
-	</p>
-	<p>
-			<strong>Query Parameters:</strong> None
-	</p>
-	<p>
-			<strong>Request Body:</strong> JSON object with the following fields:
-			<ul>
-					<li><code>username</code>: The username of the new user (string).</li>
-					<li><code>password</code>: The password of the new user (string).</li>
-			</ul>
-			Example:
-			<pre>
+			<h3>Endpoint 10: Get Movies by Director</h3>
+			<p><strong>Description:</strong> Get historic movies by director.</p>
+			<p><strong>Endpoint URL:</strong> <code>/historic-movies/Director/:Name</code></p>
+			<p><strong>Method Type:</strong> GET</p>
+			<p><strong>Request Body:</strong> N/A</p>
+			<p><strong>Response Data:</strong> JSON object representing the director's filmography. Example:
+					<pre>
 {
-	"username": "new_user",
-	"password": "password123"
+"Name": "Damien Chazelle",
+"Movies": [
+	"Babylon",
+	"La La Land",
+]
 }
-			</pre>
-	</p>
-	<p>
-			<strong>Response Data:</strong> JSON object with a success message.
-			<br>
-			Example:
-			<pre>
-{
-	"message": "User registered successfully"
-}
-			</pre>
-	</p>
-</li>
-<li>
-	<h3>Endpoint 11: Update User Username</h3>
-	<p>
-			<strong>Description:</strong> Updates a user's username.
-	</p>
-	<p>
-			<strong>Endpoint URL:</strong> <code>/users/:id</code>
-	</p>
-	<p>
-			<strong>Method Type:</strong> PUT
-	</p>
-	<p>
-			<strong>Request Parameters:</strong>
-			<ul>
-					<li><code>:id</code> (string) - The unique identifier of the user to update.</li>
-			</ul>
-	</p>
-	<p>
-			<strong>Request Body:</strong>
-			<pre>
-{
-	"newUsername": "new_username_here"
-}
-			</pre>
-	</p>
-	<p>
-			<strong>Response Data:</strong> JSON object containing a message and the updated user object.
-			<br>
-			Example:
-			<pre>
-{
-	"message": "Username updated successfully",
-	"userUpdate": {
-			"id": "user_id_here",
-			"username": "new_username_here",
-			"password": "user_password_here"
-	}
-}
-			</pre>
-	</p>
-</li>
-
+					</pre>
+			</p>
+			<p><strong>Response Status Codes:</strong><br>
+					- 200 (OK): Director's filmography is returned successfully.<br>
+					- 404 (Not Found): Director with the given name not found.</p>
+	</li>
 </ul>
+
+
+
 </body>
 </html>
