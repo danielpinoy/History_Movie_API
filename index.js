@@ -26,20 +26,10 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// const historicBooks = {
-//     Title: "Saving Private Ryan",
-//     Description: "Saving Private Ryan is a 1998 American war film directed by Steven Spielberg...",
-//     Genre: {
-//         Name: "War",
-//         Description: "War films depict the experiences of war, including its effects on society...",
-//     },
-//     Director: {
-//         Name: "Steven Spielberg",
-//         Bio: "Steven Spielberg is an American filmmaker known for his exceptional work in war and action genres...",
-//     },
-//     Actors: ["Tom Hanks", "Matt Damon", "Tom Sizemore", "Edward Burns", "Barry Pepper"],
-//     Featured: true,
-// };
+let auth = require("./auth")(app);
+const passport = require("passport");
+require("./passport");
+
 users = [{ id: 1, username: "Daniel", password: "123", favoriteMovies: [] }];
 
 // Everything in the public folder will be served
@@ -100,8 +90,14 @@ app.post("/register", (req, res) => {
 });
 
 // Update User
-app.put("/users/:Username", async (req, res) => {
+app.put("/users/:Username", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
+        if (req.user.Username !== req.params.Username) {
+            console.log(req.user.Username, req.params.Username, "dadada");
+            return res.status(400).send("Permission denied");
+        }
+        console.log(req.user.Username, req.params.Username, "dddd");
+
         const updatedUser = await Users.findOneAndUpdate(
             { Username: req.params.Username },
             {
@@ -131,11 +127,7 @@ app.put("/users/:Username", async (req, res) => {
 app.post("/users/addfavorite", (req, res) => {
     const { userId, movieId } = req.body;
 
-    Users.findByIdAndUpdate(
-        userId,
-        { $addToSet: { FavoriteMovies: movieId } }, // $addToSet ensures no duplicates
-        { new: true }
-    )
+    Users.findByIdAndUpdate(userId, { $addToSet: { FavoriteMovies: movieId } }, { new: true })
         .then((updatedUser) => {
             if (!updatedUser) {
                 return res.status(404).json({ message: "User not found" });
@@ -190,10 +182,9 @@ app.delete("/users/:id", (req, res) => {
 //                            MOVIES
 // //////////////////////////////////////////////////////
 // get all movies
-app.get("/historic-movies", (req, res, next) => {
-    Movies.find()
+app.get("/historic-movies", passport.authenticate("jwt", { session: false }), async (req, res) => {
+    await Movies.find()
         .then((movies) => {
-            // Process the result
             res.status(201).json(movies);
         })
         .catch((error) => {
@@ -203,45 +194,57 @@ app.get("/historic-movies", (req, res, next) => {
 });
 
 // return movie by title
-app.get("/historic-movies/:Title", (req, res) => {
-    Movies.findOne({ Title: req.params.Title })
-        .then((movie) => {
-            if (movie) {
-                res.status(201).json(movie);
-            } else {
-                res.status(500).send("Movie not found");
-            }
-        })
-        .catch((error) => {
-            console.error("Mongoose query error:", error);
-            res.status(500).send("Error: " + error);
-        });
-});
+app.get(
+    "/historic-movies/:Title",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        Movies.findOne({ Title: req.params.Title })
+            .then((movie) => {
+                if (movie) {
+                    res.status(201).json(movie);
+                } else {
+                    res.status(500).send("Movie not found");
+                }
+            })
+            .catch((error) => {
+                console.error("Mongoose query error:", error);
+                res.status(500).send("Error: " + error);
+            });
+    }
+);
 
 // return movie by genre
-app.get("/historic-movies/genres/:Genre", (req, res) => {
-    Movies.find({ "Genre.Name": req.params.Genre })
-        .then((movie) => {
-            res.status(201).json(movie);
-        })
-        .catch((error) => {
-            console.error("Mongoose query error:", error);
-            res.status(500).send("Error: " + error);
-        });
-});
+app.get(
+    "/historic-movies/genres/:Genre",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        Movies.find({ "Genre.Name": req.params.Genre })
+            .then((movie) => {
+                res.status(201).json(movie);
+            })
+            .catch((error) => {
+                console.error("Mongoose query error:", error);
+                res.status(500).send("Error: " + error);
+            });
+    }
+);
 
 // return director by name
-app.get("/historic-movies/Director/:Name", (req, res) => {
-    Movies.find({ "Director.Name": req.params.Name })
-        .then((movie) => {
-            const Director = movie[0].Director;
-            res.status(201).json(Director);
-        })
-        .catch((error) => {
-            console.error("Mongoose query error:", error);
-            res.status(500).send("Error: " + error);
-        });
-});
+app.get(
+    "/historic-movies/Director/:Name",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        Movies.find({ "Director.Name": req.params.Name })
+            .then((movie) => {
+                const Director = movie[0].Director;
+                res.status(201).json(Director);
+            })
+            .catch((error) => {
+                console.error("Mongoose query error:", error);
+                res.status(500).send("Error: " + error);
+            });
+    }
+);
 // error function
 app.use((err, req, res, next) => {
     // Handle the error and send an error response
