@@ -72,7 +72,7 @@ app.use(morgan("common"));
 
 // Routes
 app.get("/", (req, res) => {
-    res.send("Welcome to my library of Historic Movies");
+    res.send("Welcome to my library of Historic Mossvies");
 });
 
 app.get("/documentation", (req, res) => {
