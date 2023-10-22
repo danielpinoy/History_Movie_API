@@ -62,7 +62,7 @@ let auth = require("./auth")(app);
 const passport = require("passport");
 require("./passport");
 
-users = [{ id: 1, username: "Daniel", password: "123", favoriteMovies: [] }];
+// users = [{ id: 1, username: "Daniel", password: "123", favoriteMovies: [] }];
 
 // Everything in the public folder will be served
 app.use(express.static("public"));
@@ -81,10 +81,10 @@ app.get("/documentation", (req, res) => {
 });
 
 // User Routes
-app.get("/users", passport.authenticate("jwt", { session: false }), async (req, res) => {
+app.get("/Users", passport.authenticate("jwt", { session: false }), async (req, res) => {
     Users.find()
-        .then((users) => {
-            res.status(200).json(users);
+        .then((Users) => {
+            res.status(200).json(Users);
         })
         .catch((error) => {
             console.error("Mongoose query error:", error);
@@ -142,7 +142,7 @@ app.post(
 );
 
 // Update User
-app.put("/users/:Username", passport.authenticate("jwt", { session: false }), async (req, res) => {
+app.put("/Users/:Username", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
         if (req.user.Username !== req.params.Username) {
             return res.status(400).send("Permission denied");
@@ -176,7 +176,7 @@ app.put("/users/:Username", passport.authenticate("jwt", { session: false }), as
 
 // add favorite movie to user
 app.post(
-    "/users/addfavorite",
+    "/Users/addfavorite",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         const { userId, movieId } = req.body;
@@ -197,7 +197,7 @@ app.post(
 
 // Delete
 app.delete(
-    "/users/:id/:movieTitle",
+    "/Users/:id/:movieTitle",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         const { id, movieTitle } = req.params;
@@ -219,7 +219,7 @@ app.delete(
 );
 
 // Delete
-app.delete("/users/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
+app.delete("/Users/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
     const { id } = req.params;
     Users.findOneAndRemove({ _id: id })
         .then((deletedUser) => {
