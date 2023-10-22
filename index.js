@@ -241,7 +241,7 @@ app.delete("/Users/:id", passport.authenticate("jwt", { session: false }), async
 //                            MOVIES
 // //////////////////////////////////////////////////////
 // get all movies
-app.get("/historic-movies", passport.authenticate("jwt", { session: false }), async (req, res) => {
+app.get("/Movies", passport.authenticate("jwt", { session: false }), async (req, res) => {
     await Movies.find()
         .then((movies) => {
             res.status(201).json(movies);
@@ -253,28 +253,24 @@ app.get("/historic-movies", passport.authenticate("jwt", { session: false }), as
 });
 
 // return movie by title
-app.get(
-    "/historic-movies/:Title",
-    passport.authenticate("jwt", { session: false }),
-    async (req, res) => {
-        Movies.findOne({ Title: req.params.Title })
-            .then((movie) => {
-                if (movie) {
-                    res.status(201).json(movie);
-                } else {
-                    res.status(500).send("Movie not found");
-                }
-            })
-            .catch((error) => {
-                console.error("Mongoose query error:", error);
-                res.status(500).send("Error: " + error);
-            });
-    }
-);
+app.get("/Movies/:Title", passport.authenticate("jwt", { session: false }), async (req, res) => {
+    Movies.findOne({ Title: req.params.Title })
+        .then((movie) => {
+            if (movie) {
+                res.status(201).json(movie);
+            } else {
+                res.status(500).send("Movie not found");
+            }
+        })
+        .catch((error) => {
+            console.error("Mongoose query error:", error);
+            res.status(500).send("Error: " + error);
+        });
+});
 
 // return movie by genre
 app.get(
-    "/historic-movies/genres/:Genre",
+    "/Movies/genres/:Genre",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         Movies.find({ "Genre.Name": req.params.Genre })
@@ -290,7 +286,7 @@ app.get(
 
 // return director by name
 app.get(
-    "/historic-movies/Director/:Name",
+    "/Movies/Director/:Name",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         Movies.find({ "Director.Name": req.params.Name })
