@@ -13,13 +13,13 @@
 			<li>
 					<h3>Endpoint 1: Get All Movies</h3>
 					<p><strong>Description:</strong> Returns a list of all historic movies.</p>
-					<p><strong>Endpoint URL:</strong> <code>/historic-movies</code></p>
+					<p><strong>Endpoint URL:</strong> <code>/Movies</code></p>
 					<p><strong>Method Type:</strong> GET</p>
 					<p><strong>Query Parameters:</strong> None</p>
 					<p><strong>Request Body:</strong> N/A</p>
 					<p><strong>Response Data:</strong> JSON array representing a list of movies.</p>
 					<p><strong>Sample Request:</strong><br> To retrieve all historic movies, make a GET request to:
-							<code>http://your-api-url/historic-movies</code></p>
+							<code>http://your-api-url/Movies</code></p>
 					<p><strong>Response Status Codes:</strong><br>
 							- 200 (OK): Successful request, movies data is returned.<br>
 							- 404 (Not Found): No historic movies found.</p>
@@ -59,7 +59,7 @@
 			<li>
 				<h3>Endpoint 3: Update User Info</h3>
 				<p><strong>Description:</strong> Update user information.</p>
-				<p><strong>Endpoint URL:</strong> <code>/users/:Username</code></p>
+				<p><strong>Endpoint URL:</strong> <code>/Users/:Username</code></p>
 				<p><strong>Method Type:</strong> PUT</p>
 				<p><strong>Request Body:</strong> JSON object with user data to be updated. Example:
 						<pre>
@@ -90,7 +90,7 @@
 		<li>
 				<h3>Endpoint 4: Add Favorite Movie to User</h3>
 				<p><strong>Description:</strong> Add a movie to a user's list of favorite movies.</p>
-				<p><strong>Endpoint URL:</strong> <code>/users/addfavorite/</code></p>
+				<p><strong>Endpoint URL:</strong> <code>/Users/addfavorite/</code></p>
 				<p><strong>Method Type:</strong> POST</p>
 			
 				<p><strong>Request Body:</strong> 	
@@ -119,7 +119,7 @@
 		<li>
 				<h3>Endpoint 5: Remove Favorite Movie from User</h3>
 				<p><strong>Description:</strong> Remove a movie from a user's list of favorite movies.</p>
-				<p><strong>Endpoint URL:</strong> <code>/users/:id/:movieTitle</code></p>
+				<p><strong>Endpoint URL:</strong> <code>/Users/:id/:movieTitle</code></p>
 				<p><strong>Method Type:</strong> DELETE</p>
 				<p><strong>Request Body:</strong> N/A</p>
 				<p><strong>Response Data:</strong> JSON object indicating whether the movie was removed from favorites. Example:
@@ -137,7 +137,7 @@
 		<li>
 				<h3>Endpoint 6: Delete User</h3>
 				<p><strong>Description:</strong> Delete a user account.</p>
-				<p><strong>Endpoint URL:</strong> <code>/users/:id</code></p>
+				<p><strong>Endpoint URL:</strong> <code>/Users/:id</code></p>
 				<p><strong>Method Type:</strong> DELETE</p>
 				<p><strong>Request Body:</strong> N/A</p>
 				<p><strong>Response Data:</strong> JSON object indicating whether the user was deleted. Example:
@@ -156,7 +156,7 @@
 		<li>
 			<h3>Endpoint 7: Get All Movies</h3>
 			<p><strong>Description:</strong> Get a list of all historic movies.</p>
-			<p><strong>Endpoint URL:</strong> <code>/historic-movies</code></p>
+			<p><strong>Endpoint URL:</strong> <code>/Movies</code></p>
 			<p><strong>Method Type:</strong> GET</p>
 			<p><strong>Request Body:</strong> N/A</p>
 			<p><strong>Response Data:</strong> JSON array representing a list of movies. Example:
@@ -180,7 +180,7 @@
 	<li>
 			<h3>Endpoint 8: Get Movie by Title</h3>
 			<p><strong>Description:</strong> Get a historic movie by its title.</p>
-			<p><strong>Endpoint URL:</strong> <code>/historic-movies/:Title</code></p>
+			<p><strong>Endpoint URL:</strong> <code>/Movies/:Title</code></p>
 			<p><strong>Method Type:</strong> GET</p>
 			<p><strong>Request Body:</strong> N/A</p>
 			<p><strong>Response Data:</strong> JSON object representing the movie. Example:
@@ -201,7 +201,7 @@
 	<li>
 			<h3>Endpoint 9: Get Movies by Genre</h3>
 			<p><strong>Description:</strong> Get historic movies by genre.</p>
-			<p><strong>Endpoint URL:</strong> <code>/historic-movies/genres/:Genre</code></p>
+			<p><strong>Endpoint URL:</strong> <code>/Movies/genres/:Genre</code></p>
 			<p><strong>Method Type:</strong> GET</p>
 			<p><strong>Request Body:</strong> N/A</p>
 			<p><strong>Response Data:</strong> JSON array representing a list of movies of the specified genre. Example:
@@ -225,7 +225,7 @@
 	<li>
 			<h3>Endpoint 10: Get Movies by Director</h3>
 			<p><strong>Description:</strong> Get historic movies by director.</p>
-			<p><strong>Endpoint URL:</strong> <code>/historic-movies/Director/:Name</code></p>
+			<p><strong>Endpoint URL:</strong> <code>/Movies/Director/:Name</code></p>
 			<p><strong>Method Type:</strong> GET</p>
 			<p><strong>Request Body:</strong> N/A</p>
 			<p><strong>Response Data:</strong> JSON object representing the director's filmography. Example:
