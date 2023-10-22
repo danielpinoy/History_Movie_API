@@ -11,8 +11,21 @@ const Movies = Models.Movie;
 const Users = Models.User;
 const Genres = Models.Genre;
 const Director = Models.Director;
+// mongoose
+//     .connect("mongodb://127.0.0.1:27017/history_movies", {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true,
+//     })
+//     .then(() => {
+//         console.log("Connected to the database.");
+//     })
+//     .catch((err) => {
+//         console.error("Database connection error:", err);
+//     });
+
+// process.env.CONNECTION_URI from heruko
 mongoose
-    .connect("mongodb://127.0.0.1:27017/history_movies", {
+    .connect(process.env.CONNECTION_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -57,8 +70,8 @@ app.use(express.static("public"));
 // logs in http request into terminal
 app.use(morgan("common"));
 
-// GET requests
-app.get("/", (req, res, next) => {
+// Routes
+app.get("/", (req, res) => {
     res.send("Welcome to my library of Historic Movies");
 });
 
@@ -67,11 +80,11 @@ app.get("/documentation", (req, res) => {
     res.sendFile(filePath, { root: __dirname });
 });
 
-// get
-app.get("/users", (req, res) => {
+// User Routes
+app.get("/users", passport.authenticate("jwt", { session: false }), async (req, res) => {
     Users.find()
-        .then((Users) => {
-            res.status(201).json(Users);
+        .then((users) => {
+            res.status(200).json(users);
         })
         .catch((error) => {
             console.error("Mongoose query error:", error);
@@ -132,7 +145,6 @@ app.post(
 app.put("/users/:Username", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
         if (req.user.Username !== req.params.Username) {
-            console.log(req.user.Username, req.params.Username, "dadada");
             return res.status(400).send("Permission denied");
         }
         console.log(req.user.Username, req.params.Username, "dddd");
@@ -163,43 +175,51 @@ app.put("/users/:Username", passport.authenticate("jwt", { session: false }), as
 //
 
 // add favorite movie to user
-app.post("/users/addfavorite", (req, res) => {
-    const { userId, movieId } = req.body;
+app.post(
+    "/users/addfavorite",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { userId, movieId } = req.body;
 
-    Users.findByIdAndUpdate(userId, { $addToSet: { FavoriteMovies: movieId } }, { new: true })
-        .then((updatedUser) => {
-            if (!updatedUser) {
-                return res.status(404).json({ message: "User not found" });
-            }
-            res.status(200).json(updatedUser);
-        })
-        .catch((error) => {
-            console.error("Error adding favorite movie:", error);
-            res.status(500).json({ error: "Internal server error" });
-        });
-});
-
-// Delete
-app.delete("/users/:id/:movieTitle", (req, res) => {
-    const { id, movieTitle } = req.params;
-
-    Users.updateOne({ _id: id }, { $pull: { FavoriteMovies: movieTitle } })
-        .then((updateResult) => {
-            if (updateResult.nModified === 0) {
-                return res
-                    .status(404)
-                    .json({ message: "User not found or movie not in favorites." });
-            }
-            res.status(200).json({ message: "Movie removed from favorites." });
-        })
-        .catch((error) => {
-            console.error("Error removing movie from favorites:", error);
-            res.status(500).json({ error: "Internal server error" });
-        });
-});
+        Users.findByIdAndUpdate(userId, { $addToSet: { FavoriteMovies: movieId } }, { new: true })
+            .then((updatedUser) => {
+                if (!updatedUser) {
+                    return res.status(404).json({ message: "User not found" });
+                }
+                res.status(200).json(updatedUser);
+            })
+            .catch((error) => {
+                console.error("Error adding favorite movie:", error);
+                res.status(500).json({ error: "Internal server error" });
+            });
+    }
+);
 
 // Delete
-app.delete("/users/:id", (req, res) => {
+app.delete(
+    "/users/:id/:movieTitle",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { id, movieTitle } = req.params;
+
+        Users.updateOne({ _id: id }, { $pull: { FavoriteMovies: movieTitle } })
+            .then((updateResult) => {
+                if (updateResult.nModified === 0) {
+                    return res
+                        .status(404)
+                        .json({ message: "User not found or movie not in favorites." });
+                }
+                res.status(200).json({ message: "Movie removed from favorites." });
+            })
+            .catch((error) => {
+                console.error("Error removing movie from favorites:", error);
+                res.status(500).json({ error: "Internal server error" });
+            });
+    }
+);
+
+// Delete
+app.delete("/users/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
     const { id } = req.params;
     Users.findOneAndRemove({ _id: id })
         .then((deletedUser) => {
@@ -284,9 +304,9 @@ app.get(
             });
     }
 );
-// error function
+
+// Error Handling Middleware
 app.use((err, req, res, next) => {
-    // Handle the error and send an error response
     console.error(err.stack);
     res.status(500).send("Internal Server Error");
 });
