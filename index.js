@@ -9,8 +9,7 @@ Models = require("./model.js");
 
 const Movies = Models.Movie;
 const Users = Models.User;
-const Genres = Models.Genre;
-const Director = Models.Director;
+
 // mongoose
 //     .connect("mongodb://127.0.0.1:27017/history_movies", {
 //         useNewUrlParser: true,
