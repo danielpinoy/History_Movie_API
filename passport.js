@@ -24,7 +24,9 @@ passport.use(
                         });
                     }
                     if (!user.validatePassword(password)) {
-                        console.log("incorrect password");
+                        console.log("Incorrect password");
+                        console.log("Input password:", password);
+                        console.log("Hashed Password from Database:", user.Password);
                         return callback(null, false, { message: "Incorrect password." });
                     }
                     console.log("finished");
