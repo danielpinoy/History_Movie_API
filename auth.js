@@ -14,34 +14,22 @@ let generateJWTToken = (user) => {
 };
 
 //  POST LOGIN
-passport.use(
-    new LocalStrategy(
-        { usernameField: "Username", passwordField: "Password" },
-        async (username, password, callback) => {
-            console.log(`Username: ${username}`);
-            console.log(`Password: ${password}`);
-            await Users.findOne({ Username: username })
-                .then((user) => {
-                    console.log(`Hashed Password from Database: ${user.Password}`);
-                    if (!user) {
-                        console.log("Incorrect username");
-                        return callback(null, false, {
-                            message: "Incorrect username or password",
-                        });
-                    }
-                    if (!user.validatePassword(password)) {
-                        console.log("Incorrect password");
-                        return callback(null, false, { message: "Incorrect password." });
-                    }
-                    console.log("Authentication successful");
-                    return callback(null, user);
-                })
-                .catch((error) => {
-                    if (error) {
-                        console.log(error);
-                        return callback(error);
-                    }
+module.exports = (router) => {
+    router.post("/login", (req, res) => {
+        passport.authenticate("local", { session: false }, (error, user, info) => {
+            if (error || !user) {
+                return res.status(400).json({
+                    message: "Something is not right",
+                    user: user,
                 });
-        }
-    )
-);
+            }
+            req.login(user, { session: false }, (error) => {
+                if (error) {
+                    res.send(error);
+                }
+                let token = generateJWTToken(user.toJSON());
+                return res.json({ user, token });
+            });
+        })(req, res);
+    });
+};
