@@ -101,10 +101,11 @@ app.post(
     "/register",
     [
         check("Username", "Username is required").isLength({ min: 5 }),
-        check(
-            "Username",
-            "Username contains non-alphanumeric characters - not allowed."
-        ).isAlphanumeric(),
+        check("Username", "Username contains non alphanumeric characters - not allowed.")
+            .matches(/^[a-zA-Z0-9 ]*$/)
+            .withMessage("Username can only contain letters, numbers, and spaces")
+            .not()
+            .isEmpty(),
         check("Password", "Password is required").not().isEmpty(),
         check("Email", "Email does not appear to be valid").isEmail(),
     ],
@@ -142,10 +143,11 @@ app.put(
     "/Users/:Username",
     [
         check("Username", "Username is required").isLength({ min: 5 }),
-        check(
-            "Username",
-            "Username contains non alphanumeric characters - not allowed."
-        ).isAlphanumeric(),
+        check("Username", "Username contains non alphanumeric characters - not allowed.")
+            .matches(/^[a-zA-Z0-9 ]*$/)
+            .withMessage("Username can only contain letters, numbers, and spaces")
+            .not()
+            .isEmpty(),
         check("Password", "Password is required").not().isEmpty(),
         check("Email", "Email does not appear to be valid").isEmail(),
     ],
