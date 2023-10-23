@@ -98,45 +98,43 @@ app.post(
         check("Username", "Username is required").isLength({ min: 5 }),
         check(
             "Username",
-            "Username contains non alphanumeric characters - not allowed."
+            "Username contains non-alphanumeric characters - not allowed."
         ).isAlphanumeric(),
         check("Password", "Password is required").not().isEmpty(),
-        check("Email", "Email does not appear to be valid").isEmail(),
+        check("Email", "Email is not valid").isEmail(),
     ],
-    (req, res) => {
-        // check the validation object for errors
-        let errors = validationResult(req);
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
+            if (!errors.isEmpty()) {
+                return res.status(422).json({ errors: errors.array() });
+            }
+
+            const existingUser = await Users.findOne({ Username: req.body.Username });
+
+            if (existingUser) {
+                return res
+                    .status(400)
+                    .send(req.body.Username + " is already a user in the database");
+            }
+
+            const hashedPassword = Users.hashPassword(req.body.Password);
+
+            const newUser = {
+                Username: req.body.Username,
+                Password: hashedPassword,
+                Email: req.body.Email,
+                Birthday: req.body.Birthday, //
+                FavoriteMovies: req.body.FavoriteMovies || [],
+            };
+
+            const user = await Users.create(newUser);
+            res.status(201).json(user);
+        } catch (error) {
+            console.error("Error registering user:", error);
+            res.status(500).json({ error: "Internal server error" });
         }
-
-        let hashedPassword = Users.hashPassword(req.body.Password);
-        Users.findOne({ Username: req.body.Username })
-            .then((user) => {
-                if (user) {
-                    return res.status(400).send(req.body.Username + "Already user inside Database");
-                } else {
-                    Users.create({
-                        Username: req.body.Username,
-                        Password: hashedPassword,
-                        Email: req.body.Email,
-                        Birthday: req.body.Birthday,
-                        FavoriteMovies: req.body.FavoriteMovies,
-                    })
-                        .then((user) => {
-                            res.status(201).json(user);
-                        })
-                        .catch((error) => {
-                            console.error("Mongoose query error:", error);
-                            res.status(500).send("Error: " + error);
-                        });
-                }
-            })
-            .catch((error) => {
-                console.error("Error inserting user:", error);
-                res.status(500).json({ error: "Internal server error" });
-            });
     }
 );
 
