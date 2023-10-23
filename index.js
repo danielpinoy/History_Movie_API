@@ -10,21 +10,8 @@ Models = require("./model.js");
 const Movies = Models.Movie;
 const Users = Models.User;
 
-mongoose
-    .connect("mongodb://127.0.0.1:27017/history_movies", {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-    .then(() => {
-        console.log("Connected to the database.");
-    })
-    .catch((err) => {
-        console.error("Database connection error:", err);
-    });
-
-// process.env.CONNECTION_URI from heruko
 // mongoose
-//     .connect(process.env.CONNECTION_URI, {
+//     .connect("mongodb://127.0.0.1:27017/history_movies", {
 //         useNewUrlParser: true,
 //         useUnifiedTopology: true,
 //     })
@@ -34,6 +21,19 @@ mongoose
 //     .catch((err) => {
 //         console.error("Database connection error:", err);
 //     });
+
+// process.env.CONNECTION_URI from heruko
+mongoose
+    .connect(process.env.CONNECTION_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => {
+        console.log("Connected to the database.");
+    })
+    .catch((err) => {
+        console.error("Database connection error:", err);
+    });
 
 const app = express();
 
