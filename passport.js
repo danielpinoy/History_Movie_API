@@ -9,24 +9,25 @@ let Users = Models.User,
 
 passport.use(
     new LocalStrategy(
-        { usernameField: "Username", passwordField: "Password" },
+        {
+            usernameField: "Username",
+            passwordField: "Password",
+        },
         async (username, password, callback) => {
-            console.log(`Username: ${username}`);
-            console.log(`Password: ${password}`);
+            console.log(`${username} ${password}`);
             await Users.findOne({ Username: username })
                 .then((user) => {
-                    console.log(`Hashed Password from Database: ${user.Password}`);
                     if (!user) {
-                        console.log("Incorrect username");
+                        console.log("incorrect username");
                         return callback(null, false, {
-                            message: "Incorrect username or password",
+                            message: "Incorrect username or password.",
                         });
                     }
                     if (!user.validatePassword(password)) {
-                        console.log("Incorrect password");
+                        console.log("incorrect password");
                         return callback(null, false, { message: "Incorrect password." });
                     }
-                    console.log("Authentication successful");
+                    console.log("finished");
                     return callback(null, user);
                 })
                 .catch((error) => {
