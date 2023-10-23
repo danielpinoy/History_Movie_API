@@ -139,36 +139,45 @@ app.post(
 );
 
 // Update User
-app.put("/Users/:Username", passport.authenticate("jwt", { session: false }), async (req, res) => {
-    try {
-        if (req.user.Username !== req.params.Username) {
-            return res.status(400).send("Permission denied");
+app.put(
+    "/Users/:Username",
+    [
+        check("Username", "Username is required").isLength({ min: 5 }),
+        check(
+            "Username",
+            "Username contains non alphanumeric characters - not allowed."
+        ).isAlphanumeric(),
+        check("Password", "Password is required").not().isEmpty(),
+        check("Email", "Email does not appear to be valid").isEmail(),
+    ],
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-        console.log(req.user.Username, req.params.Username, "dddd");
-
-        const updatedUser = await Users.findOneAndUpdate(
+        let hashedPassword = Users.hashPassword(req.body.Password);
+        await Users.findOneAndUpdate(
             { Username: req.params.Username },
             {
                 $set: {
                     Username: req.body.Username,
-                    Password: req.body.Password,
+                    Password: hashedPassword,
                     Email: req.body.Email,
                     Birthday: req.body.Birthday,
                 },
             },
             { new: true }
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.json(updatedUser);
-    } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).send("Error: " + error.message);
+        )
+            .then((updatedUser) => {
+                res.json(updatedUser);
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send("Error: " + err);
+            });
     }
-});
+);
 //
 
 // add favorite movie to user
