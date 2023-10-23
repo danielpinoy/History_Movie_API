@@ -10,6 +10,7 @@ Models = require("./model.js");
 const Movies = Models.Movie;
 const Users = Models.User;
 
+// TEST LOCALLY
 // mongoose
 //     .connect("mongodb://127.0.0.1:27017/history_movies", {
 //         useNewUrlParser: true,
@@ -61,8 +62,6 @@ let auth = require("./auth")(app);
 const passport = require("passport");
 require("./passport");
 
-// users = [{ id: 1, username: "Daniel", password: "123", favoriteMovies: [] }];
-
 // Everything in the public folder will be served
 app.use(express.static("public"));
 
@@ -78,6 +77,12 @@ app.get("/documentation", (req, res) => {
     const filePath = "public/documentation.html";
     res.sendFile(filePath, { root: __dirname });
 });
+
+/**
+ * ************************************************************
+ *                           USERS
+ * ************************************************************
+ */
 
 // User Routes
 app.get("/Users", passport.authenticate("jwt", { session: false }), async (req, res) => {
@@ -237,9 +242,12 @@ app.delete("/Users/:id", passport.authenticate("jwt", { session: false }), async
         });
 });
 
-// ////////////////////////////////////////////////////////////
-//                            MOVIES
-// //////////////////////////////////////////////////////
+/**
+ * ************************************************************
+ *                           MOVIES
+ * ************************************************************
+ */
+
 // get all movies
 app.get("/Movies", passport.authenticate("jwt", { session: false }), async (req, res) => {
     await Movies.find()
