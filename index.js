@@ -40,6 +40,8 @@ const app = express();
 
 //CORS
 const cors = require("cors");
+const allowedOrigins = ["http://localhost:1234"];
+
 app.use(
     cors({
         origin: (origin, callback) => {
@@ -47,7 +49,7 @@ app.use(
             if (allowedOrigins.indexOf(origin) === -1) {
                 // If a specific origin isn't found on the list of allowed origins
                 let message =
-                    " The CORS policy for this application doesn't allow access from origin " +
+                    "The CORS policy for this application doesn't allow access from origin " +
                     origin;
                 return callback(new Error(message), false);
             }
