@@ -254,7 +254,6 @@ app.delete("/Users/:id", passport.authenticate("jwt", { session: false }), async
 app.get("/Movies", async (req, res) => {
     await Movies.find()
         .then((movies) => {
-            console.log("Dadadada");
             res.status(201).json(movies);
         })
         .catch((error) => {
