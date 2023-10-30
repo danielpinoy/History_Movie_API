@@ -109,7 +109,6 @@ app.post(
             .not()
             .isEmpty(),
         check("Password", "Password is required").not().isEmpty(),
-        check("Email", "Email does not appear to be valid").isEmail(),
     ],
     async (req, res) => {
         const errors = validationResult(req);
