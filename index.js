@@ -141,7 +141,7 @@ app.post(
 
 // Update User
 app.put(
-    "/Users/:Username",
+    "/user/:Username",
     [
         check("Username", "Username is required").isLength({ min: 5 }),
         check("Username", "Username contains non alphanumeric characters - not allowed.")
@@ -154,6 +154,8 @@ app.put(
     ],
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
+        console.log("PUT request received for Username:", req.params.Username);
+
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
