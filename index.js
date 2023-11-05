@@ -229,7 +229,7 @@ app.delete(
 );
 
 // Delete
-app.delete("/Users/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
+app.delete("/user/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
     const { id } = req.params;
     Users.findOneAndRemove({ _id: id })
         .then((deletedUser) => {
