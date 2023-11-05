@@ -207,7 +207,7 @@ app.post(
 
 // Delete
 app.delete(
-    "/Users/:id/:movieTitle",
+    "/users/:id/:movieTitle",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         const { id, movieTitle } = req.params;
