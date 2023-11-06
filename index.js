@@ -212,27 +212,19 @@ app.delete(
     async (req, res) => {
         const { id, movieId } = req.params;
 
-        try {
-            const userId = new ObjectId(id);
-            const movieObjectId = new ObjectId(movieId);
-
-            const updatedUser = await Users.findOneAndUpdate(
-                { _id: userId },
-                { $pull: { FavoriteMovies: movieObjectId } },
-                { new: true }
-            );
-
-            if (!updatedUser) {
-                return res
-                    .status(404)
-                    .json({ message: "User not found or movie not in favorites." });
-            }
-
-            res.status(200).json({ message: "Movie removed from favorites." });
-        } catch (error) {
-            console.error("Error removing movie from favorites:", error);
-            res.status(500).json({ error: "Internal server error" });
-        }
+        Users.updateOne({ _id: id }, { $pull: { FavoriteMovies: movieId } })
+            .then((updateResult) => {
+                if (updateResult.nModified === 0) {
+                    return res
+                        .status(404)
+                        .json({ message: "User not found or movie not in favorites." });
+                }
+                res.status(200).json({ message: "Movie removed from favorites." });
+            })
+            .catch((error) => {
+                console.error("Error removing movie from favorites:", error);
+                res.status(500).json({ error: "Internal server error" });
+            });
     }
 );
 
