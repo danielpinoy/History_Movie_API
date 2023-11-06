@@ -186,7 +186,7 @@ app.put(
 
 // add favorite movie to user
 app.post(
-    "/Users/addfavorite",
+    "/user/addfavorite",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         const { userId, movieId } = req.body;
