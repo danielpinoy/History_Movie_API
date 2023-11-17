@@ -46,7 +46,7 @@ let allowedOrigins = [
     "http://testsite.com",
     "http://localhost:1234",
 ];
-
+console.log("server start");
 app.use(
     cors({
         origin: "*",
