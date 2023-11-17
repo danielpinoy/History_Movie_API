@@ -45,6 +45,7 @@ let allowedOrigins = [
     "http://localhost:3000",
     "http://testsite.com",
     "http://localhost:1234",
+    "https://kaleidoscopic-tiramisu-9e52da.netlify.app",
 ];
 
 app.use(
