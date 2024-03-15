@@ -34,12 +34,12 @@ The following endpoints are available:
 
 ## Technologies Used
 
--           Node.js
--           Express
--           MongoDB (with Mongoose)
--           JSON Web Tokens (JWT) for authentication
--           Passport.js for authentication middleware
--           Express Validator for input validation
+-   Node.js
+-   Express
+-   MongoDB (with Mongoose)
+-   JSON Web Tokens (JWT) for authentication
+-   Passport.js for authentication middleware
+-   Express Validator for input validation
 
 ### Contact
 
