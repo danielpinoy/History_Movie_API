@@ -20,18 +20,17 @@ npm run dev
 
 ## API Endpoints
 
-The following API endpoints are available:
+The following endpoints are available:
 
-```rest
-/login: Authenticate a user and generate a JSON Web Token (JWT).
-/register: Register a new user.
-/Movies: Get a list of all movies (requires authentication).
-/Movies/:Title: Get details of a specific movie by title (requires authentication).
-/Movies/genres/:Genre: Get a list of movies by genre (requires authentication).
-/Movies/Director/:Name: Get details of a director by name (requires authentication).
-/user/addfavorite: Add a movie to the user's favorite list (requires authentication).
-/user/:id/:movieId: Remove a movie from the user's favorite list (requires authentication).
-/user/:id: Delete a user (requires authentication)
+-   /login: Authenticate a user and generate a JSON Web Token (JWT).
+-   /register: Register a new user.
+-   /Movies: Get a list of all movies (requires authentication).
+-   /Movies/:Title: Get details of a specific movie by title (requires authentication).
+-   /Movies/genres/:Genre: Get a list of movies by genre (requires authentication).
+-   /Movies/Director/:Name: Get details of a director by name (requires authentication).
+-   /user/addfavorite: Add a movie to the user's favorite list (requires authentication).
+-   /user/:id/:movieId: Remove a movie from the user's favorite list (requires authentication).
+-   /user/:id: Delete a user (requires authentication)
 
 ## Technologies Used
 
@@ -45,4 +44,3 @@ The following API endpoints are available:
 ### Contact
 
 For any inquiries or feedback, please contact [Daniel John](mailto:almirante.danieljohn@gmail.com).
-```
