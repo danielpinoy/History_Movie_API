@@ -140,7 +140,7 @@ app.post(
                 Email: req.body.Email,
                 Birthday: req.body.Birthday,
             });
-
+            console.log("New user created:", newUser);
             res.status(201).json(newUser);
         } catch (error) {
             console.error(error);
