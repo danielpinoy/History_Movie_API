@@ -48,6 +48,7 @@ let allowedOrigins = [
     "https://kaleidoscopic-tiramisu-9e52da.netlify.app",
     "http://localhost:4200",
     "https://my-flix-client-37ln36u1h-danielpinoys-projects.vercel.app",
+    "https://my-flix-client-7o9x-dk8ca42tz-danielpinoys-projects.vercel.app",
 ];
 
 app.use(
