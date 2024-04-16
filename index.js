@@ -97,6 +97,8 @@ app.get("/documentation", (req, res) => {
  */
 
 // User Routes
+
+//
 app.get("/Users", passport.authenticate("jwt", { session: false }), async (req, res) => {
     Users.find()
         .then((Users) => {
@@ -138,7 +140,7 @@ app.post(
 
             const newUser = await Users.create({
                 Username: req.body.Username,
-                Password: req.body.Password,
+                Password: hashedPassword, // Use the hashed password here
                 Email: req.body.Email,
                 Birthday: req.body.Birthday,
             });
@@ -172,17 +174,21 @@ app.put(
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
         }
-        let hashedPassword = Users.hashPassword(req.body.Password);
+
+        const updateData = {
+            Username: req.body.Username,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday,
+        };
+
+        // Only include the password in the update if it's provided in the request body
+        if (req.body.Password) {
+            updateData.Password = Users.hashPassword(req.body.Password);
+        }
+
         await Users.findOneAndUpdate(
             { Username: req.params.Username },
-            {
-                $set: {
-                    Username: req.body.Username,
-                    Password: hashedPassword,
-                    Email: req.body.Email,
-                    Birthday: req.body.Birthday,
-                },
-            },
+            { $set: updateData },
             { new: true }
         )
             .then((updatedUser) => {
