@@ -181,7 +181,7 @@ app.put(
             Birthday: req.body.Birthday,
         };
 
-        // Only include the password in the update if it's provided in the request body
+        // Only hash and update the password if a new password is provided
         if (req.body.Password) {
             updateData.Password = Users.hashPassword(req.body.Password);
         }
@@ -200,7 +200,53 @@ app.put(
             });
     }
 );
-//
+
+// Get user profile
+app.get("/user/:Username", passport.authenticate("jwt", { session: false }), async (req, res) => {
+    Users.findOne({ Username: req.params.Username })
+        .select("-Password") // Exclude the password field from the query result
+        .then((user) => {
+            if (user) {
+                res.status(200).json(user);
+            } else {
+                res.status(404).send("User not found");
+            }
+        })
+        .catch((error) => {
+            console.error("Mongoose query error:", error);
+            res.status(500).send("Error: " + error);
+        });
+});
+
+// Change password
+app.put(
+    "/user/:Username/change-password",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { currentPassword, newPassword } = req.body;
+
+        Users.findOne({ Username: req.params.Username })
+            .then(async (user) => {
+                if (!user) {
+                    return res.status(404).json({ message: "User not found" });
+                }
+
+                const isPasswordValid = await user.validatePassword(currentPassword);
+                if (!isPasswordValid) {
+                    return res.status(401).json({ message: "Invalid current password" });
+                }
+
+                user.Password = Users.hashPassword(newPassword);
+                await user.save();
+
+                res.status(200).json({ message: "Password changed successfully" });
+            })
+            .catch((error) => {
+                console.error("Error changing password:", error);
+                res.status(500).json({ error: "Internal server error" });
+            });
+    }
+);
 
 // add favorite movie to user
 app.post(
