@@ -12,10 +12,13 @@ const Users = Models.User;
 
 // TEST LOCALLY
 // mongoose
-//     .connect("mongodb://127.0.0.1:27017/history_movies", {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true,
-//     })
+//     .connect(
+//         "mongodb+srv://danielcool:Daniel@historicmovies.wzmwehq.mongodb.net/?retryWrites=true&w=majority&appName=historicMovies",
+//         {
+//             useNewUrlParser: true,
+//             useUnifiedTopology: true,
+//         }
+//     )
 //     .then(() => {
 //         console.log("Connected to the database.");
 //     })
