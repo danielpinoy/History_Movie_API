@@ -13,7 +13,7 @@ const Users = Models.User;
 // TEST LOCALLY
 // mongoose
 //     .connect(
-//         "mongodb+srv://danielcool:Daniel@historicmovies.wzmwehq.mongodb.net/?retryWrites=true&w=majority&appName=historicMovies",
+//         "mongodb+srv://railway_movie_api:OeS710kIwld2zsUS@historicmovies.wzmwehq.mongodb.net/historicMovies?retryWrites=true&w=majority&appName=historicMovies",
 //         {
 //             useNewUrlParser: true,
 //             useUnifiedTopology: true,
