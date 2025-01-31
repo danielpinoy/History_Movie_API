@@ -30,10 +30,8 @@ const authLimiter = rateLimit({
 });
 
 const movieLimiter = rateLimit({
-  // windowMs: 60 * 60 * 1000, // 1 hour
-  // max: 200, // 200 requests per hour
-  windowMs: 60 * 60 * 1000,
-  max: 3, // Reduce this to 3 for testing
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 200, // 200 requests per hour
   message: "Too many movie requests, please try again later",
   standardHeaders: true,
   legacyHeaders: false,
