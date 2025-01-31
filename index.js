@@ -40,36 +40,36 @@ const movieLimiter = rateLimit({
 });
 
 // Apply it before your movie routes
-app.use("/Movies", movieLimiter);
+// app.use("/Movies", movieLimiter);
 
 // TEST LOCALLY
-// mongoose
-//     .connect(
-//         "mongodb+srv://railway_movie_api:OeS710kIwld2zsUS@historicmovies.wzmwehq.mongodb.net/historicMovies?retryWrites=true&w=majority&appName=historicMovies",
-//         {
-//             useNewUrlParser: true,
-//             useUnifiedTopology: true,
-//         }
-//     )
-//     .then(() => {
-//         console.log("Connected to the database.");
-//     })
-//     .catch((err) => {
-//         console.error("Database connection error:", err);
-//     });
-
-// process.env.CONNECTION_URI from heruko
 mongoose
-  .connect(process.env.CONNECTION_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    "mongodb+srv://railway_movie_api:OeS710kIwld2zsUS@historicmovies.wzmwehq.mongodb.net/historicMovies?retryWrites=true&w=majority&appName=historicMovies",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(() => {
     console.log("Connected to the database.");
   })
   .catch((err) => {
     console.error("Database connection error:", err);
   });
+
+// process.env.CONNECTION_URI from heruko
+// mongoose
+//   .connect(process.env.CONNECTION_URI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => {
+//     console.log("Connected to the database.");
+//   })
+//   .catch((err) => {
+//     console.error("Database connection error:", err);
+//   });
 
 const app = express();
 
