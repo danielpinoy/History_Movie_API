@@ -89,6 +89,7 @@ let allowedOrigins = [
   "https://my-flix-client-37ln36u1h-danielpinoys-projects.vercel.app",
   "https://my-flix-client-7o9x-dk8ca42tz-danielpinoys-projects.vercel.app",
   "https://my-flix-client-7o9x.vercel.app",
+  "https://my-flix-client-ashen.vercel.app/myFlixClient",
 ];
 
 app.use(
