@@ -16,13 +16,13 @@ const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: "Too many requests from this IP, please try again after 15 minutes",
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 25,
   message:
     "Too many login attempts from this IP, please try again after 15 minutes",
   standardHeaders: true,
@@ -30,8 +30,8 @@ const authLimiter = rateLimit({
 });
 
 const movieLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 200, // 200 requests per hour
+  windowMs: 60 * 60 * 1000,
+  max: 200,
   message: "Too many movie requests, please try again later",
   standardHeaders: true,
   legacyHeaders: false,
