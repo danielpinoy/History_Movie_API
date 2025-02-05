@@ -22,7 +22,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 25,
+  max: 50,
   message:
     "Too many login attempts from this IP, please try again after 15 minutes",
   standardHeaders: true,
@@ -449,11 +449,47 @@ app.get(
   }
 );
 
-// Error Handling Middleware
+app.use((err, req, res, next) => {
+  // Handle network-related errors
+  if (err.code === "ECONNREFUSED" || err.code === "ENOTFOUND") {
+    return res.status(503).json({
+      message:
+        "Network error: Unable to connect to the server. Please check your internet connection.",
+    });
+  }
+
+  // Handle timeout errors
+  if (err.code === "ETIMEDOUT") {
+    return res.status(504).json({
+      message:
+        "Request timed out. Please check your network connection and try again.",
+    });
+  }
+
+  // Handle other specific API errors
+  if (err.name === "UnauthorizedError") {
+    return res.status(401).json({
+      message: "Invalid credentials. Please check your username and password.",
+    });
+  }
+
+  // Pass other errors to the next error handler
+  next(err);
+});
+
+// Your existing error handler would then handle any remaining errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("Internal Server Error");
+  res.status(500).json({
+    message: "An unexpected error occurred. Please try again later.",
+  });
 });
+
+// // Error Handling Middleware
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send("Internal Server Error");
+// });
 
 const port = process.env.PORT || 8080;
 app.listen(port, "0.0.0.0", () => {
