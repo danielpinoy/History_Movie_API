@@ -449,39 +449,47 @@ app.get(
   }
 );
 
+// Update the error handling middleware
 app.use((err, req, res, next) => {
-  // Handle network-related errors
+  // MongoDB errors
+  if (err.name === "MongoNetworkError" || err.name === "MongoTimeoutError") {
+    return res.status(503).json({
+      message: "Database connection error. Please try again later.",
+    });
+  }
+
+  // Network errors
   if (err.code === "ECONNREFUSED" || err.code === "ENOTFOUND") {
     return res.status(503).json({
-      message:
-        "Network error: Unable to connect to the server. Please check your internet connection.",
+      message: "Network error: Server is unreachable. Please try again later.",
     });
   }
 
-  // Handle timeout errors
+  // Timeout errors
   if (err.code === "ETIMEDOUT") {
     return res.status(504).json({
-      message:
-        "Request timed out. Please check your network connection and try again.",
+      message: "Request timed out. Please try again later.",
     });
   }
 
-  // Handle other specific API errors
+  // Authentication errors
   if (err.name === "UnauthorizedError") {
     return res.status(401).json({
-      message: "Invalid credentials. Please check your username and password.",
+      message: "Invalid credentials",
     });
   }
 
-  // Pass other errors to the next error handler
-  next(err);
-});
+  // Validation errors
+  if (err.name === "ValidationError") {
+    return res.status(400).json({
+      message: err.message || "Invalid input data",
+    });
+  }
 
-// Your existing error handler would then handle any remaining errors
-app.use((err, req, res, next) => {
+  // Default error
   console.error(err.stack);
   res.status(500).json({
-    message: "An unexpected error occurred. Please try again later.",
+    message: "Something went wrong. Please try again later.",
   });
 });
 
