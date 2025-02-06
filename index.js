@@ -449,6 +449,13 @@ app.get(
   }
 );
 
+// Temporary test endpoint
+app.get("/test-error", (req, res, next) => {
+  const error = new Error("Test error");
+  error.code = "ECONNREFUSED";
+  next(error);
+});
+
 // Update the error handling middleware
 app.use((err, req, res, next) => {
   // MongoDB errors

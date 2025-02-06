@@ -14,8 +14,6 @@ let generateJWTToken = (user) => {
 };
 
 //  POST LOGIN
-
-//  POST LOGIN
 module.exports = (router) => {
   router.post("/login", (req, res) => {
     console.log("Request body:", req.body);
