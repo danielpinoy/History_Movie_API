@@ -72,6 +72,7 @@ let allowedOrigins = [
   "https://my-flix-client-7o9x.vercel.app",
   "https://history-movie-api.vercel.app",
   "https://my-flix-client-ashen.vercel.app/myFlixClient",
+  "https://main.digy0dhpvav3e.amplifyapp.com/login",
 ];
 
 app.use(
