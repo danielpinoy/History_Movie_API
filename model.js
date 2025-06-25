@@ -1,19 +1,34 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-let movieSchema = mongoose.Schema({
-  Title: { type: String, required: true },
-  Description: { type: String, required: true },
-  Genre: [String],
-  ReleaseDate: { type: Date, required: true },
-  Rating: { type: String, required: true },
-  Runtime: { type: String, required: true },
-  Image: { type: String, required: true },
-  Director: { type: String, required: true },
-  Writer: [String],
-  Actors: [String],
-  Featured: Boolean,
-});
+let movieSchema = mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true, index: true },
+    description: { type: String, required: true, trim: true },
+    genre: [{ type: String, trim: true }],
+    releaseDate: { type: Date, required: true, index: true },
+    rating: { type: Number, min: 0, max: 10 }, // TMDB rating 0-10
+    voteCount: { type: Number, min: 0 }, // How many people rated it
+    runtime: { type: Number, min: 1 }, // Minutes as number
+    image: { type: String, required: true },
+    director: { type: String, required: true, trim: true },
+    writer: [{ type: String, trim: true }],
+    actors: [{ type: String, trim: true }],
+    featured: { type: Boolean, default: false },
+    // New useful fields from TMDB:
+    tmdbId: { type: Number, unique: true, sparse: true }, // TMDB API reference
+    imdbId: { type: String, sparse: true }, // IMDB reference
+    budget: { type: Number, min: 0 }, // Movie budget
+    revenue: { type: Number, min: 0 }, // Box office revenue
+    popularity: { type: Number, min: 0 }, // TMDB popularity score
+  },
+  {
+    timestamps: true, // Adds createdAt, updatedAt automatically
+  }
+);
+
+// Add text search index for better search performance
+movieSchema.index({ title: "text", description: "text" });
 
 let userSchema = mongoose.Schema({
   Username: { type: String, required: true },

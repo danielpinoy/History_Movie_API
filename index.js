@@ -71,7 +71,7 @@ let allowedOrigins = [
   "https://my-flix-client-7o9x.vercel.app",
   "https://history-movie-api.vercel.app",
   "https://my-flix-client-ashen.vercel.app/myFlixClient",
-  "https://main.digy0dhpvav3e.amplifyapp.com/login",
+  "https://main.digy0dhpvav3e.amplifyapp.com",
 ];
 
 app.use(
@@ -149,9 +149,9 @@ app.post(
       const existingUser = await Users.findOne({ Username: req.body.Username });
 
       if (existingUser) {
-        return res
-          .status(400)
-          .json({ error: `Username "${req.body.Username}" already exists` });
+        return res.status(400).json({
+          error: `Username "${req.body.Username}" already exists`,
+        });
       }
 
       const newUser = await Users.create({
@@ -350,55 +350,50 @@ app.get(
   }
 );
 
-app.get(
-  "/Movies/:Title",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    Movies.findOne({ Title: req.params.Title })
-      .then((movie) => {
-        if (movie) {
-          res.status(200).json(movie);
-        } else {
-          res.status(404).send("Movie not found");
-        }
-      })
-      .catch((error) => {
-        console.error("Mongoose query error:", error);
-        res.status(500).send("Error: " + error);
-      });
-  }
-);
-
-app.get(
-  "/Movies/genres/:Genre",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    Movies.find({ "Genre.Name": req.params.Genre })
-      .then((movie) => {
+app.get("/Movies/:Title", async (req, res) => {
+  Movies.findOne({ title: req.params.Title }) // Changed: Title -> title
+    .then((movie) => {
+      if (movie) {
         res.status(200).json(movie);
-      })
-      .catch((error) => {
-        console.error("Mongoose query error:", error);
-        res.status(500).send("Error: " + error);
-      });
-  }
-);
+      } else {
+        res.status(404).send("Movie not found");
+      }
+    })
+    .catch((error) => {
+      console.error("Mongoose query error:", error);
+      res.status(500).send("Error: " + error);
+    });
+});
 
-app.get(
-  "/Movies/Director/:Name",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    Movies.find({ "Director.Name": req.params.Name })
-      .then((movie) => {
-        const Director = movie[0].Director;
-        res.status(200).json(Director);
-      })
-      .catch((error) => {
-        console.error("Mongoose query error:", error);
-        res.status(500).send("Error: " + error);
-      });
-  }
-);
+app.get("/Movies/genres/:Genre", async (req, res) => {
+  // This one needs to be updated to handle array search
+  Movies.find({ genre: { $in: [req.params.Genre] } }) // Changed: "Genre.Name" -> genre array search
+    .then((movies) => {
+      res.status(200).json(movies);
+    })
+    .catch((error) => {
+      console.error("Mongoose query error:", error);
+      res.status(500).send("Error: " + error);
+    });
+});
+
+app.get("/Movies/Director/:Name", async (req, res) => {
+  Movies.find({ director: req.params.Name }) // Changed: "Director.Name" -> director
+    .then((movies) => {
+      if (movies.length > 0) {
+        res.status(200).json({
+          name: movies[0].director,
+          movies: movies.map((m) => m.title),
+        });
+      } else {
+        res.status(404).send("Director not found");
+      }
+    })
+    .catch((error) => {
+      console.error("Mongoose query error:", error);
+      res.status(500).send("Error: " + error);
+    });
+});
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
