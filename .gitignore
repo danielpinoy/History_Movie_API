@@ -2,5 +2,7 @@ node_modules
 addMovies.js
 .env
 cached_movies.json
+seedMovies.js
+
 # Ignore the casestudy-archive directory
 portfolio-react/src/images/casestudy-archive/
