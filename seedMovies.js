@@ -9,93 +9,94 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const CACHE_FILE = "./cached_movies.json";
 
-// Historical movie genres and keywords for better targeting
-const HISTORICAL_KEYWORDS = [
-  "historical",
-  "period",
-  "biography",
-  "war",
-  "ancient",
-  "medieval",
-  "renaissance",
-  "victorian",
-  "world war",
-];
+// Cloudinary configuration
+const CLOUDINARY_CLOUD_NAME = "diuwbgio8";
+
+// Image optimization function
+const createOptimizedImageUrl = (originalUrl, width = 300, height = 450) => {
+  if (!originalUrl) {
+    return `https://via.placeholder.com/${width}x${height}/1a1a1a/ffffff?text=No+Image`;
+  }
+
+  const encodedUrl = encodeURIComponent(originalUrl);
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/fetch/w_${width},h_${height},c_fill,f_auto,q_auto/${encodedUrl}`;
+};
 
 class MovieSeeder {
   constructor() {
-    this.cachedMovies = [];
-    this.processedMovies = [];
+    this.allMovies = [];
+    this.filteredMovies = [];
   }
 
-  // Load cached movies from file
-  loadCache() {
-    try {
-      if (fs.existsSync(CACHE_FILE)) {
-        const data = fs.readFileSync(CACHE_FILE, "utf8");
-        this.cachedMovies = JSON.parse(data);
-        console.log(`✅ Loaded ${this.cachedMovies.length} movies from cache`);
-        return true;
-      }
-    } catch (error) {
-      console.log("⚠️ No cache file found or error reading cache");
-    }
-    return false;
+  // Utility function for delays
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  // Save movies to cache file
-  saveCache() {
-    try {
-      fs.writeFileSync(CACHE_FILE, JSON.stringify(this.cachedMovies, null, 2));
-      console.log(`💾 Saved ${this.cachedMovies.length} movies to cache`);
-    } catch (error) {
-      console.error("❌ Error saving cache:", error.message);
-    }
-  }
+  // Fetch movies from multiple strategies
+  async fetchAllMovies(maxPages = 25) {
+    console.log(
+      `🔍 Fetching movies from TMDB API (${maxPages} pages per strategy)...`
+    );
 
-  // Fetch movies from TMDB API - with fallback options
-  async fetchMoviesFromAPI(pages = 8) {
-    console.log("🔍 Fetching movies from TMDB API...");
-
-    // Try different strategies if one fails
     const strategies = [
-      // Strategy 1: Historical genres with quality filter
       {
-        name: "Historical + Quality",
+        name: "Popular English Historical Movies",
         params: {
           with_genres: "18,36,10752", // Drama, History, War
-          sort_by: "vote_average.desc",
+          with_original_language: "en", // English only
+          region: "US,GB,CA,AU", // English-speaking countries
+          sort_by: "popularity.desc",
           "vote_average.gte": 6.0,
-          "vote_count.gte": 50,
           include_adult: false,
         },
       },
-      // Strategy 2: Just historical genres
       {
-        name: "Historical Only",
+        name: "Top Rated Historical & War Movies",
         params: {
-          with_genres: "36,10752", // History, War
-          sort_by: "popularity.desc",
-          include_adult: false,
-        },
-      },
-      // Strategy 3: Popular movies (fallback)
-      {
-        name: "Popular Movies",
-        params: {
-          sort_by: "popularity.desc",
+          with_genres: "36,10752", // History, War ONLY (no general drama)
+          with_original_language: "en", // English only
+          region: "US,GB,CA,AU", // English-speaking countries
+          sort_by: "vote_average.desc",
+          "vote_count.gte": 100,
           "vote_average.gte": 7.0,
+          include_adult: false,
+        },
+      },
+      {
+        name: "Historical Biographical Movies",
+        params: {
+          with_genres: "18,36", // Drama + History TOGETHER (not just drama)
+          with_original_language: "en", // English only
+          region: "US,GB,CA,AU", // English-speaking countries
+          sort_by: "popularity.desc",
+          "vote_average.gte": 6.5,
+          "primary_release_date.gte": "1990-01-01",
+          include_adult: false,
+        },
+      },
+      {
+        name: "Period Dramas & Historical Fiction",
+        params: {
+          with_genres: "18,36,10749", // Drama + History + Romance (period pieces)
+          with_original_language: "en", // English only
+          region: "US,GB,CA,AU", // English-speaking countries
+          sort_by: "vote_average.desc",
+          "primary_release_date.gte": "1980-01-01",
+          "vote_average.gte": 6.8,
           include_adult: false,
         },
       },
     ];
 
     for (const strategy of strategies) {
-      console.log(`🎯 Trying strategy: ${strategy.name}`);
-      let totalFetched = 0;
+      console.log(`\n🎯 Strategy: ${strategy.name}`);
+      let moviesFromStrategy = 0;
 
-      for (let page = 1; page <= pages; page++) {
+      for (let page = 1; page <= maxPages; page++) {
         try {
+          console.log(`📄 Fetching page ${page}/${maxPages}...`);
+
           const response = await axios.get(`${TMDB_BASE_URL}/discover/movie`, {
             params: {
               api_key: TMDB_API_KEY,
@@ -104,73 +105,98 @@ class MovieSeeder {
             },
           });
 
-          console.log(
-            `📄 Fetched page ${page} - ${response.data.results.length} movies`
-          );
-          totalFetched += response.data.results.length;
+          const movies = response.data.results || [];
+          console.log(`   Found ${movies.length} movies on page ${page}`);
+          moviesFromStrategy += movies.length;
 
-          // Get detailed info for each movie and immediately transform it
-          for (const movie of response.data.results) {
-            const detailResponse = await axios.get(
-              `${TMDB_BASE_URL}/movie/${movie.id}`,
-              {
-                params: {
-                  api_key: TMDB_API_KEY,
-                  append_to_response: "credits",
-                },
-              }
-            );
+          // Process each movie
+          for (const movie of movies) {
+            try {
+              // Get detailed movie info
+              const detailResponse = await axios.get(
+                `${TMDB_BASE_URL}/movie/${movie.id}`,
+                {
+                  params: {
+                    api_key: TMDB_API_KEY,
+                    append_to_response: "credits",
+                  },
+                }
+              );
 
-            // Transform immediately and store only what we need
-            const transformedMovie = this.transformMovieData(
-              detailResponse.data
-            );
-            this.cachedMovies.push(transformedMovie);
+              const processedMovie = this.processMovieData(detailResponse.data);
+              this.allMovies.push(processedMovie);
 
-            // Rate limiting
-            await this.delay(100);
+              // Rate limiting to avoid hitting API limits
+              await this.delay(50);
+            } catch (error) {
+              console.log(
+                `   ⚠️ Error processing movie ${movie.title}: ${error.message}`
+              );
+            }
           }
 
           // Rate limiting between pages
-          await this.delay(1000);
+          await this.delay(500);
         } catch (error) {
-          console.error(`❌ Error fetching page ${page}:`, error.message);
+          console.log(`   ❌ Error fetching page ${page}: ${error.message}`);
           break;
         }
       }
 
       console.log(
-        `📊 Strategy "${strategy.name}" fetched ${totalFetched} movies total`
+        `✅ Strategy "${strategy.name}" completed: ${moviesFromStrategy} movies fetched`
       );
 
-      // If we got some movies, stop trying other strategies
-      if (totalFetched > 0) {
-        console.log(`✅ Success with strategy: ${strategy.name}`);
+      // Stop if we have enough movies
+      if (this.allMovies.length >= 300) {
+        console.log(
+          `🎯 Reached ${this.allMovies.length} movies, stopping fetch`
+        );
         break;
       }
     }
 
-    if (this.cachedMovies.length === 0) {
-      console.log(
-        "❌ All strategies failed. Check your API key and internet connection."
-      );
-    }
+    console.log(`\n📊 Total movies fetched: ${this.allMovies.length}`);
   }
 
-  // Transform TMDB data to your schema format
-  transformMovieData(tmdbMovie) {
+  processMovieData(tmdbMovie) {
+    // Extract basic info
     const genres = tmdbMovie.genres ? tmdbMovie.genres.map((g) => g.name) : [];
     const actors = tmdbMovie.credits?.cast
       ? tmdbMovie.credits.cast.slice(0, 5).map((actor) => actor.name)
       : [];
-    const writers = tmdbMovie.credits?.crew
-      ? tmdbMovie.credits.crew
-          .filter(
-            (person) => person.job === "Writer" || person.job === "Screenplay"
-          )
-          .slice(0, 3)
-          .map((writer) => writer.name)
-      : [];
+    const director =
+      tmdbMovie.credits?.crew?.find((person) => person.job === "Director")
+        ?.name || "Unknown";
+
+    // Get TMDB image paths
+    const posterPath = tmdbMovie.poster_path;
+    const backdropPath = tmdbMovie.backdrop_path;
+
+    // Generate different sized image URLs using your existing Cloudinary function
+    const posterUrl = posterPath
+      ? `https://image.tmdb.org/t/p/w780${posterPath}`
+      : null;
+    const backdropUrl = backdropPath
+      ? `https://image.tmdb.org/t/p/w1280${backdropPath}`
+      : null;
+
+    // Create images object with multiple sizes
+    const images = {
+      // Thumbnail for grid cards (300x450) - good for performance
+      thumbnail: createOptimizedImageUrl(posterUrl, 300, 450),
+
+      // Poster for detailed views (500x750) - balanced quality
+      poster: createOptimizedImageUrl(posterUrl, 500, 750),
+
+      // Backdrop for hero sections - use backdrop if available, otherwise poster
+      backdrop: backdropUrl
+        ? createOptimizedImageUrl(backdropUrl, 800, 450) // Wide format for hero
+        : createOptimizedImageUrl(posterUrl, 600, 800), // Tall format fallback
+
+      // Original for future use (large poster)
+      original: createOptimizedImageUrl(posterUrl, 780, 1170),
+    };
 
     return {
       title: tmdbMovie.title,
@@ -182,15 +208,20 @@ class MovieSeeder {
       rating: tmdbMovie.vote_average || 0,
       voteCount: tmdbMovie.vote_count || 0,
       runtime: tmdbMovie.runtime || 0,
-      image: tmdbMovie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${tmdbMovie.poster_path}`
-        : "https://via.placeholder.com/500x750?text=No+Image",
-      director:
-        tmdbMovie.credits?.crew?.find((person) => person.job === "Director")
-          ?.name || "Unknown",
-      writer: writers,
+
+      // New structured images object
+      images: images,
+
+      // Legacy field for backward compatibility (use poster size)
+      image: images.poster,
+
+      // Keep your existing heroImage for compatibility
+      heroImage: images.backdrop,
+
+      director: director,
+      writer: [],
       actors: actors,
-      featured: tmdbMovie.vote_average > 8.0, // Mark high-rated movies as featured
+      featured: tmdbMovie.vote_average > 8.0,
       tmdbId: tmdbMovie.id,
       imdbId: tmdbMovie.imdb_id || null,
       budget: tmdbMovie.budget || 0,
@@ -199,40 +230,96 @@ class MovieSeeder {
     };
   }
 
-  // Process cached movies for database insertion
+  // Remove duplicates and filter movies
   processMovies() {
-    console.log("🔄 Processing movies for database insertion...");
+    console.log(`\n🔄 Processing ${this.allMovies.length} movies...`);
 
-    // Movies are already transformed and cached, just filter and sort
-    this.processedMovies = this.cachedMovies
-      .filter((movie) => {
-        // Filter for quality movies (data is already transformed)
-        const hasGenres = movie.genre && movie.genre.length > 0;
-        const isQuality = movie.rating >= 6.0 && movie.voteCount >= 50;
-        const hasDescription =
-          movie.description && movie.description.length > 50;
-        const hasYear =
-          movie.releaseDate &&
-          new Date(movie.releaseDate).getFullYear() >= 1950;
+    // Remove duplicates based on tmdbId
+    const uniqueMovies = [];
+    const seenIds = new Set();
 
-        return hasGenres && isQuality && hasDescription && hasYear;
-      })
-      .sort((a, b) => b.rating - a.rating) // Sort by rating, best first
-      .slice(0, 100); // Limit to 100 quality movies
+    for (const movie of this.allMovies) {
+      if (!seenIds.has(movie.tmdbId)) {
+        seenIds.add(movie.tmdbId);
+        uniqueMovies.push(movie);
+      }
+    }
 
     console.log(
-      `✅ Processed ${this.processedMovies.length} movies for insertion (target: 100)`
+      `✅ Removed ${this.allMovies.length - uniqueMovies.length} duplicates`
     );
+    console.log(`📊 ${uniqueMovies.length} unique movies remaining`);
+
+    // Apply RELAXED filtering
+    this.filteredMovies = uniqueMovies.filter((movie) => {
+      // Very relaxed criteria to get more movies
+      const hasTitle = movie.title && movie.title.length > 0;
+      const hasGenres = movie.genre && movie.genre.length > 0;
+      const hasDescription = movie.description && movie.description.length > 10; // Very short requirement
+      const hasValidYear =
+        movie.releaseDate && new Date(movie.releaseDate).getFullYear() >= 1900; // Very old requirement
+      const hasMinimalRating = movie.rating >= 4.0; // Low rating requirement
+      const hasImage = movie.image && movie.image.includes("cloudinary");
+
+      // Debug logging for filtering
+      if (!hasTitle) console.log(`❌ No title: ${movie.title}`);
+      if (!hasGenres) console.log(`❌ No genres: ${movie.title}`);
+      if (!hasDescription) console.log(`❌ No description: ${movie.title}`);
+      if (!hasValidYear)
+        console.log(
+          `❌ Bad year: ${movie.title} (${new Date(
+            movie.releaseDate
+          ).getFullYear()})`
+        );
+      if (!hasMinimalRating)
+        console.log(`❌ Low rating: ${movie.title} (${movie.rating})`);
+      if (!hasImage) console.log(`❌ No image: ${movie.title}`);
+
+      return (
+        hasTitle &&
+        hasGenres &&
+        hasDescription &&
+        hasValidYear &&
+        hasMinimalRating &&
+        hasImage
+      );
+    });
+
+    // Sort by popularity and rating
+    this.filteredMovies.sort((a, b) => {
+      const scoreA = a.rating * 0.7 + Math.log(a.popularity) * 0.3;
+      const scoreB = b.rating * 0.7 + Math.log(b.popularity) * 0.3;
+      return scoreB - scoreA;
+    });
+
+    // Take top movies
+    this.filteredMovies = this.filteredMovies.slice(0, 150);
+
+    console.log(`✅ Final filtered movies: ${this.filteredMovies.length}`);
+
+    // Show sample movies
+    if (this.filteredMovies.length > 0) {
+      console.log("\n🎬 Sample movies to be inserted:");
+      this.filteredMovies.slice(0, 5).forEach((movie, index) => {
+        console.log(
+          `${index + 1}. ${movie.title} (${new Date(
+            movie.releaseDate
+          ).getFullYear()}) - Rating: ${movie.rating}`
+        );
+      });
+    } else {
+      console.log("❌ NO MOVIES PASSED FILTERING! Check the criteria.");
+    }
   }
 
-  // Connect to MongoDB
+  // Connect to database
   async connectToDatabase() {
     try {
       await mongoose.connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
-      console.log("🗄️ Connected to MongoDB");
+      console.log("\n🗄️ Connected to MongoDB");
     } catch (error) {
       console.error("❌ Database connection error:", error.message);
       throw error;
@@ -244,61 +331,85 @@ class MovieSeeder {
     try {
       console.log("💾 Inserting movies into database...");
 
-      // Clear existing movies - DELETE ALL FIRST
+      // Clear existing movies
       const deleteResult = await Movies.deleteMany({});
       console.log(`🗑️ Cleared ${deleteResult.deletedCount} existing movies`);
 
-      // Insert new movies
-      const result = await Movies.insertMany(this.processedMovies);
-      console.log(
-        `✅ Successfully inserted ${result.length} movies into database`
-      );
+      if (this.filteredMovies.length === 0) {
+        console.log("❌ No movies to insert!");
+        return;
+      }
 
-      // Show sample of inserted movies
-      console.log("\n📋 Sample of inserted movies:");
-      result.slice(0, 5).forEach((movie, index) => {
+      // Insert new movies
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const movie of this.filteredMovies) {
+        try {
+          await Movies.create(movie);
+          successCount++;
+
+          // Show progress
+          if (successCount % 20 === 0) {
+            console.log(
+              `   Inserted ${successCount}/${this.filteredMovies.length} movies...`
+            );
+          }
+        } catch (error) {
+          console.log(`⚠️ Error inserting "${movie.title}": ${error.message}`);
+          errorCount++;
+        }
+      }
+
+      console.log(`\n✅ Successfully inserted ${successCount} movies`);
+      if (errorCount > 0) {
+        console.log(`⚠️ Failed to insert ${errorCount} movies`);
+      }
+
+      // Show final sample
+      const sampleMovies = await Movies.find().limit(3);
+      console.log("\n📋 Sample inserted movies:");
+      sampleMovies.forEach((movie, index) => {
         console.log(
-          `${index + 1}. ${movie.Title} (${movie.ReleaseDate.getFullYear()})`
+          `${index + 1}. ${movie.title} (${movie.releaseDate.getFullYear()})`
         );
+        console.log(`   Image: ${movie.image.substring(0, 80)}...`);
       });
     } catch (error) {
       console.error("❌ Error inserting movies:", error.message);
-      console.log("✅ Movies were successfully inserted despite display error");
-      return; // Don't throw, just return since insertion worked
+      throw error;
     }
   }
 
-  // Utility function for delays
-  delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  // Main execution function
+  // Main execution
   async run(options = {}) {
-    const { useCache = true, fetchNew = false, pages = 8 } = options;
+    const { pages = 25 } = options;
 
     try {
-      // Step 1: Try to load from cache
-      if (useCache && this.loadCache() && !fetchNew) {
-        console.log("📦 Using cached movie data");
-      } else {
-        // Step 2: Fetch from API if no cache or fetchNew requested
-        await this.fetchMoviesFromAPI(pages);
-        this.saveCache();
-      }
+      console.log("🎬 FRESH Movie Database Seeding Started");
+      console.log(`🖼️ Using Cloudinary cloud: ${CLOUDINARY_CLOUD_NAME}`);
+      console.log(`📄 Will fetch ${pages} pages per strategy`);
+      console.log("=====================================\n");
 
-      // Step 3: Process movies for database
+      // Step 1: Fetch movies from TMDB
+      await this.fetchAllMovies(pages);
+
+      // Step 2: Process and filter movies
       this.processMovies();
 
-      // Step 4: Connect to database
+      // Step 3: Connect to database
       await this.connectToDatabase();
 
-      // Step 5: Insert movies
+      // Step 4: Insert movies
       await this.insertMovies();
 
       console.log("\n🎉 Movie seeding completed successfully!");
+      console.log(
+        `✅ ${this.filteredMovies.length} movies with optimized images ready!`
+      );
     } catch (error) {
-      console.error("💥 Seeding failed:", error.message);
+      console.error("\n💥 Seeding failed:", error.message);
+      console.error(error.stack);
     } finally {
       mongoose.connection.close();
       console.log("👋 Database connection closed");
@@ -313,14 +424,14 @@ async function main() {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const options = {
-    useCache: !args.includes("--no-cache"),
-    fetchNew: args.includes("--fetch-new"),
     pages: args.includes("--pages")
-      ? parseInt(args[args.indexOf("--pages") + 1]) || 5
-      : 5,
+      ? parseInt(args[args.indexOf("--pages") + 1]) || 25
+      : 25,
+    fetchNew: args.includes("--fetch-new"),
+    noCache: args.includes("--no-cache"),
   };
 
-  console.log("🎬 Starting Movie Database Seeding");
+  console.log("🎬 Starting Fresh Movie Seeding");
   console.log("Options:", options);
   console.log("=====================================\n");
 
