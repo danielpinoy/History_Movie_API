@@ -26,17 +26,14 @@ exports.handler = (event, context) => {
     event.httpMethod = event.requestContext.http.method;
   }
 
-  // For Lambda Function URLs, ensure proper format
   if (!event.httpMethod && event.requestContext?.http?.method) {
     event.httpMethod = event.requestContext.http.method;
   }
 
-  // Fix the path issue
   if (!event.path && event.rawPath) {
     event.path = event.rawPath;
   }
 
-  // Fix query parameters
   if (!event.queryStringParameters && event.rawQueryString) {
     event.queryStringParameters = event.rawQueryString
       ? Object.fromEntries(new URLSearchParams(event.rawQueryString))

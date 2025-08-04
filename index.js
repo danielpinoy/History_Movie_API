@@ -22,7 +22,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 30,
   message:
     "Too many login attempts from this IP, please try again after 15 minutes",
   standardHeaders: true,
@@ -30,7 +30,7 @@ const authLimiter = rateLimit({
 });
 const movieLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 600,
   message: "Too many movie requests, please try again later",
   standardHeaders: true,
   legacyHeaders: false,
@@ -176,17 +176,12 @@ app.put(
     check(
       "Username",
       "Username contains non alphanumeric characters - not allowed."
-    )
-      .matches(/^[a-zA-Z0-9 ]*$/)
-      .withMessage("Username can only contain letters, numbers, and spaces")
-      .not()
-      .isEmpty(),
-    check("Password", "Password is required").not().isEmpty(),
+    ).matches(/^[a-zA-Z0-9 ]*$/),
     check("Email", "Email does not appear to be valid").isEmail(),
   ],
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    console.log("PUT request received for Username:", req.params.Username);
+    // console.log("PUT request received for Username:", req.params.Username);
 
     let errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -198,10 +193,6 @@ app.put(
       Email: req.body.Email,
       Birthday: req.body.Birthday,
     };
-
-    if (req.body.Password) {
-      updateData.Password = Users.hashPassword(req.body.Password);
-    }
 
     await Users.findOneAndUpdate(
       { Username: req.params.Username },
@@ -244,26 +235,26 @@ app.put(
   async (req, res) => {
     const { currentPassword, newPassword } = req.body;
 
-    Users.findOne({ Username: req.params.Username })
-      .then(async (user) => {
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
+    try {
+      const user = await Users.findOne({ Username: req.params.Username });
 
-        const isPasswordValid = await user.validatePassword(currentPassword);
-        if (!isPasswordValid) {
-          return res.status(401).json({ message: "Invalid current password" });
-        }
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-        user.Password = Users.hashPassword(newPassword);
-        await user.save();
+      const isPasswordValid = await user.validatePassword(currentPassword);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: "Invalid current password" });
+      }
 
-        res.status(200).json({ message: "Password changed successfully" });
-      })
-      .catch((error) => {
-        console.error("Error changing password:", error);
-        res.status(500).json({ error: "Internal server error" });
-      });
+      user.Password = Users.hashPassword(newPassword);
+      await user.save();
+
+      res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 );
 
@@ -297,14 +288,16 @@ app.delete(
   async (req, res) => {
     const { id, movieId } = req.params;
 
-    Users.updateOne({ _id: id }, { $pull: { FavoriteMovies: movieId } })
-      .then((updateResult) => {
-        if (updateResult.nModified === 0) {
-          return res
-            .status(404)
-            .json({ message: "User not found or movie not in favorites." });
+    Users.findByIdAndUpdate(
+      id,
+      { $pull: { FavoriteMovies: movieId } },
+      { new: true }
+    )
+      .then((updatedUser) => {
+        if (!updatedUser) {
+          return res.status(404).json({ message: "User not found" });
         }
-        res.status(200).json({ message: "Movie removed from favorites." });
+        res.status(200).json(updatedUser);
       })
       .catch((error) => {
         console.error("Error removing movie from favorites:", error);
@@ -351,7 +344,7 @@ app.get(
 );
 
 app.get("/Movies/:Title", async (req, res) => {
-  Movies.findOne({ title: req.params.Title }) // Changed: Title -> title
+  Movies.findOne({ title: req.params.Title })
     .then((movie) => {
       if (movie) {
         res.status(200).json(movie);
@@ -367,7 +360,7 @@ app.get("/Movies/:Title", async (req, res) => {
 
 app.get("/Movies/genres/:Genre", async (req, res) => {
   // This one needs to be updated to handle array search
-  Movies.find({ genre: { $in: [req.params.Genre] } }) // Changed: "Genre.Name" -> genre array search
+  Movies.find({ genre: { $in: [req.params.Genre] } })
     .then((movies) => {
       res.status(200).json(movies);
     })

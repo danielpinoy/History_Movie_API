@@ -17,10 +17,8 @@ module.exports = (router) => {
   router.post("/login", (req, res) => {
     console.log("Request body:", req.body);
     passport.authenticate("local", { session: false }, (error, user, info) => {
-      // Network or server connection errors
       if (error) {
         console.log("Authentication error:", error);
-        // Check for specific network-related errors
         if (
           error.name === "MongoNetworkError" ||
           error.code === "ECONNREFUSED"
@@ -54,7 +52,6 @@ module.exports = (router) => {
       req.login(user, { session: false }, (error) => {
         if (error) {
           console.log("Login error:", error);
-          // Session-related errors
           if (error.name === "SessionError") {
             return res.status(500).json({
               message: "Session error. Please try logging in again.",
@@ -70,27 +67,3 @@ module.exports = (router) => {
     })(req, res);
   });
 };
-
-// module.exports = (router) => {
-//     router.post("/login", (req, res) => {
-//         console.log("Request body:", req.body);
-//         passport.authenticate("local", { session: false }, (error, user, info) => {
-//             if (error) {
-//                 console.log("Authentication error:", error);
-//                 return res.status(500).json({ message: "Internal server error" });
-//             }
-//             if (!user) {
-//                 console.log("Authentication failed:", info);
-//                 return res.status(401).json({ message: "Invalid username or password" });
-//             }
-//             req.login(user, { session: false }, (error) => {
-//                 if (error) {
-//                     console.log("Login error:", error);
-//                     return res.status(500).json({ message: "Internal server error" });
-//                 }
-//                 let token = generateJWTToken(user.toJSON());
-//                 return res.json({ user, token });
-//             });
-//         })(req, res);
-//     });
-// };
