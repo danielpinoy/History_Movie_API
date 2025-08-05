@@ -9,7 +9,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const CACHE_FILE = "./cached_movies.json";
 
-// Cloudinary configuration
+// Cloudinary
 const CLOUDINARY_CLOUD_NAME = "diuwbgio8";
 
 // Image optimization function

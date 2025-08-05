@@ -1,7 +1,6 @@
 const awsServerlessExpress = require("aws-serverless-express");
 const app = require("./index");
 
-// Create server with proper MIME type handling
 const server = awsServerlessExpress.createServer(app, null, [
   "application/json",
   "application/x-www-form-urlencoded",
