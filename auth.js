@@ -2,7 +2,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken"),
   passport = require("passport");
 
-require("./passport"); // Your local passport file
+require("./passport");
 
 let generateJWTToken = (user) => {
   return jwt.sign(user, jwtSecret, {
@@ -12,7 +12,6 @@ let generateJWTToken = (user) => {
   });
 };
 
-//  POST LOGIN
 module.exports = (router) => {
   router.post("/login", (req, res) => {
     console.log("Request body:", req.body);

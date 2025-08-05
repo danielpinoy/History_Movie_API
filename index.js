@@ -51,13 +51,11 @@ mongoose
 
 const app = express();
 
-// Apply limiters
 app.use(apiLimiter);
 app.use("/login", authLimiter);
 app.use("/register", authLimiter);
 app.use("/Movies", movieLimiter);
 
-// CORS
 const cors = require("cors");
 let allowedOrigins = [
   "http://localhost:8080",
